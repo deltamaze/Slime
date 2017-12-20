@@ -6,12 +6,15 @@ class Player extends GameBody {
     let colorBlue = 255;
     let colorGreen = 100;
     let colorRed = 0;
+    let ticksOfUpwardThrust = 0
     var options = {
-      label: 'Circle Body',
+      label: 'player',
       circleRadius: radius,
       isStatic: false,
       friction: 0,
-      restitution: .95
+      frictionAir:1,
+      restitution: -10,
+      inertia :Infinity 
     };
 
     //create object
