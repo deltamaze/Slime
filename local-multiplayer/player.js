@@ -14,12 +14,13 @@ class Player extends GameBody {
       friction: 0,
       frictionAir:1,
       restitution: -10,
-      inertia :Infinity 
+      inertia :Infinity ,
+      density : .001
     };
 
     //create object
 
-    // approximate circles with polygons until true circles implemented in SAT
+    
     maxSides = maxSides || 25;
     var sides = Math.ceil(Math.max(10, Math.min(maxSides, radius)));
 

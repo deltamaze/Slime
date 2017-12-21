@@ -9,10 +9,10 @@ class Ball extends GameBody {
         label: 'ball',
         isStatic: false,
         friction: 0,
-        frictionAir:0,
-        restitution: .5,
+        frictionAir:.01,
+        restitution: .9,
         circleRadius: radius,
-        density : .01
+        density : .001
 
   
       };

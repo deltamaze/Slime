@@ -8,7 +8,8 @@ class Boundry extends GameBody {
         label: 'Wall',
         isStatic: true,
         friction: 0,
-        restitution: .5
+        restitution: .9,
+        density : 1
   
       };
       let newBody = Matter.Bodies.rectangle(x,y,width,height,options);
