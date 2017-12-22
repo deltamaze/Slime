@@ -12,7 +12,7 @@ class Ball extends GameBody {
         frictionAir:.01,
         restitution: .9,
         circleRadius: radius,
-        density : .001
+        density : .003
 
   
       };

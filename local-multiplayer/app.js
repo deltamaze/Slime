@@ -5,24 +5,25 @@ let ball;
 let gameBodies = [];
 
 let canvasHeight = 400;
-let canvasWidth = 600;
+let canvasWidth = 800;
 let playerGroundedYPos = 329
 let ballGroundedYPos = 339
 let vertForce = .05;
-let defaultTicksOfUpwardThrust = 8;
-let upForcePerTick = .04;
+let defaultTicksOfUpwardThrust = 10;
+let upForcePerTick = .05;
 let downForce = .03;
 function setup() {
 
   let canvas = createCanvas(canvasWidth, canvasHeight);
   canvas.parent('p5-holder');
   engine = Matter.Engine.create();
+  engine.timing.timeScale = .8;
   world = engine.world;
   world.gravity.scale = .0005
   Matter.Engine.run(engine);
 
-  player1 = new Player(world, 30, 100, 200);
-  player2 = new Player(world, 30, 400, 200);
+  player1 = new Player(world, 40, 150, 200);
+  player2 = new Player(world, 40, canvasWidth-150, 200);
   player2.colorBlue = 0;
   player2.colorRed = 255;
   ball=new Ball(world, canvasWidth/2,100,10);
@@ -33,7 +34,8 @@ function setup() {
   gameBodies.push(new Boundry(world, canvasWidth / 2, canvasHeight, canvasWidth, 100));//floor
   gameBodies.push(new Boundry(world, 0, canvasHeight / 2, 100, canvasHeight));//leftwall
   gameBodies.push(new Boundry(world, canvasWidth, canvasHeight / 2, 100, canvasHeight));//rightwall
-  gameBodies.push(new Boundry(world, canvasWidth / 2, canvasHeight, 10, 350));//net
+  gameBodies.push(new Boundry(world, canvasWidth / 2, canvasHeight, 15, 230));//net
+  gameBodies.push(new Boundry(world, canvasWidth / 2, 285, 0,7.5,3));//net triangle
   gameBodies.push(new Boundry(world, canvasWidth / 2, 0, canvasWidth, 100));//ciel
 
 
@@ -87,7 +89,7 @@ function draw() {
   }
   //debug key, S
   if (keyIsDown(83)) { // d
-    console.log(ball.body);
+    console.log(engine);
   }
 
 }
