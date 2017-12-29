@@ -1,7 +1,7 @@
 {
-  "name": "snake-arcade-server",
+  "name": "slime-server",
   "version": "1.0.0",
-  "description": "server side for snake arcade",
+  "description": "server side for slime",
   "engines": {
     "node": ">=4.3.2"
   },
@@ -9,8 +9,6 @@
     "start": "node app.js"
   },
   "dependencies": {
-    "express": "^4.15.2",
-    "firebase": "^3.8.0",
-    "firebase-admin": "^4.2.1"
+    "express": "^4.15.2"
   }
 }
