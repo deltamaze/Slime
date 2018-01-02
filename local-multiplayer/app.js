@@ -42,8 +42,9 @@ function setup() {
 }
 
 function draw() {
-
+ 
   background(51);
+
   gameBodies.forEach(function (gameBody) {
     gameBody.show();
     //apply upforce to players
@@ -91,6 +92,10 @@ function draw() {
   if (keyIsDown(83)) { // d
     console.log(engine);
   }
+
+  var s = 'The quick brown fox jumped over the lazy dog.';
+  fill(50);
+  text(s, 10, 10, 70, 80); // Text wraps within text box
 
 }
 function ApplyUpTick(player) {
