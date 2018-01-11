@@ -1,5 +1,5 @@
 class Player extends GameBody {
-  constructor(engineWorld,radius,x,y) {
+  constructor(engineWorld,radius,x,y,playerId) {
     
     //config
     let maxSides = 100;//smooth out circle edge
@@ -7,8 +7,9 @@ class Player extends GameBody {
     let colorGreen = 100;
     let colorRed = 0;
     let ticksOfUpwardThrust = 0
+    
     var options = {
-      label: 'player',
+      label: 'player' + playerId.toString(),
       circleRadius: radius,
       isStatic: false,
       friction: 0,
@@ -57,6 +58,9 @@ class Player extends GameBody {
     this.colorBlue = colorBlue;
     this.colorRed = colorRed;
     this.colorGreen = colorGreen;
+    this.hitCount =0;
+    this.lastHit=0;
+    this.score = 0;
   }
 }
 

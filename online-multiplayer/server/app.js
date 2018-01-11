@@ -3,6 +3,9 @@ var http = require('http').Server(app);
 
 
 
+
+
+
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -21,6 +24,12 @@ http.listen(PORT, function () {
 });
 
 
+
+const io = require('socket.io')(http);
+function onConnection(socket){
+  socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
+}
+io.on('connection', onConnection);
 
 
 
@@ -75,3 +84,15 @@ function GameService() {
         //move players back to spawn, and also ball
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

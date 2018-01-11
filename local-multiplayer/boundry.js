@@ -1,11 +1,11 @@
 class Boundry extends GameBody {
-  constructor(engineWorld, x, y, width, height, polygonSideCount =0) {
+  constructor(engineWorld, x, y, width, height, polygonSideCount =0,name = 'Wall') {
     //config
     let colorBlue = 150;
     let colorGreen = 150;
     let colorRed = 150;
     var options = {
-      label: 'Wall',
+      label: name,
       isStatic: true,
       friction: 0,
       restitution: .9,
