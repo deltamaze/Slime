@@ -30,7 +30,12 @@ function onConnection(socket){
   socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
 }
 io.on('connection', onConnection);
+//socket methods
+//relay a gameItemObject, with player pos, ball pos/velocity, round num, scores
+//on client if roundnum != the server roundnum, then update round num, and ball pos, otherwise, update ball pos if ball is not on their side of the court
 
+
+//RESTful methods
 
 
 function GameService() {
@@ -40,7 +45,7 @@ function GameService() {
     this.canvasWidth = 800;
     this.room = 'Main';
 
-    this.timeCounter = 0;
+    this.frameCounter = 0;
     this.myTimer;
     this.gameEngine;
 
@@ -56,15 +61,14 @@ function GameService() {
 
 
     this.gameEngine = function () {
-        this.timeCounter++;
-        console.log(this.timeCounter);
+        this.frameCounter++;
         
   
         this.checkGameOver();//check to see if players lost
         //also end game if gametime exceeds 10 minutes incase player afk
        
         console.log();
-        if (this.timeCounter > 3000)//if both players dead, or game time past 10 minutes, end timer
+        if (this.frameCounter > 3000)//if both players dead, or game time past 10 minutes, end timer
         {
             clearInterval(this.myTimer);
             
@@ -81,7 +85,7 @@ function GameService() {
     }
     this.resetPosition = function (playerNum) {
 
-        //move players back to spawn, and also ball
+        //move players back to spawn, and tell clients ball angular velocity so that it's synced up on both clients
     }
 }
 
