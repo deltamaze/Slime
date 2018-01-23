@@ -1,6 +1,6 @@
 var app = require('express')();
 var http = require('http').Server(app);
-
+let gameObjects = [];//all the game objects which all threads will access
 
 
 
@@ -92,7 +92,8 @@ function GameService() {
 
 
 
-
+//todo generate token method
+// create mutex for gameroom + player token
 
 
 
