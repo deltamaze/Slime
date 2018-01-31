@@ -12,10 +12,10 @@ app.use(function (req, res, next) {
     next();
 });
 console.log("Server Started");
-app.get('/startSlimeGame/:roomName', function (req, res) {
+app.get('/joinSlimeGame/:roomName', function (req, res) {
 
     gameService = new GameService();
-    gameService.startGame(req.params.roomName);
+    gameService.playerJoinGame(req.params.roomName);
     res.send('<h1>' + req.params.roomName + '</h1>');
 });
 
@@ -50,15 +50,29 @@ function GameService() {
     this.gameEngine;
 
 
-    this.startGame = function (roomName) {
-
+    this.playerJoinGame = function (roomName) {
+        //check to see if game exist
+        if(gameObjects[roomName] === null)
+        {
+            
+            gameObjects[roomName] = {
+                players=[]
+            }
+            this.addPlayerToGame()
+        }
+        else if(gameObjects[roomName].players.Length <= 2)
+        {
+            this.addPlayerToGame();
+        }
+        
         this.room = roomName
         console.log("start game called:"+ roomName.toString());
         this.myTimer = setInterval(this.gameEngine.bind(this), this.gameUpdateTime);
-
+    }
+    this.addPlayerToGame()
+    {
 
     }
-
 
     this.gameEngine = function () {
         this.frameCounter++;
