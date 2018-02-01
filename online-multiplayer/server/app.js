@@ -26,10 +26,7 @@ http.listen(PORT, function () {
 
 
 const io = require('socket.io')(http);
-// function onConnection(socket){
-//   socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
-// }
-// io.on('connection', onConnection);
+
 io.on('connection', function(socket){
     console.log('a user connected');
     socket.on('chat message', function(msg){
