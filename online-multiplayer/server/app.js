@@ -26,10 +26,20 @@ http.listen(PORT, function () {
 
 
 const io = require('socket.io')(http);
-function onConnection(socket){
-  socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
-}
-io.on('connection', onConnection);
+// function onConnection(socket){
+//   socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
+// }
+// io.on('connection', onConnection);
+io.on('connection', function(socket){
+    console.log('a user connected');
+    socket.on('chat message', function(msg){
+          console.log('message: ' + msg);
+          io.emit('chat message', msg);
+        });
+    socket.on('disconnect', function(){
+      console.log('user disconnected');
+    });
+  });
 //socket methods
 //relay a gameItemObject, with player pos, ball pos/velocity, round num, scores
 //on client if roundnum != the server roundnum, then update round num, and ball pos, otherwise, update ball pos if ball is not on their side of the court
@@ -70,7 +80,7 @@ function GameService() {
         
         this.room = roomName
         console.log("start game called:"+ roomName.toString());
-        this.myTimer = setInterval(this.gameEngine.bind(this), this.gameUpdateTime);
+        //this.myTimer = setInterval(this.gameEngine.bind(this), this.gameUpdateTime);
     }
     this.addPlayerToGame = function ()
     {

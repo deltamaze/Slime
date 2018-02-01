@@ -5,6 +5,12 @@ let myGuid = guid();
 let myHash = hash(myGuid);
 console.log(myGuid);
 console.log(myHash);
+var socket = io('http://localhost:8080');
+socket.on('connect', function(){});
+socket.emit('chat message', "test");
+socket.on('chat message', function(msg){
+  console.log(msg);
+});
 //subscribe to main room player positions from server (let server return, player 1 username, player 2 username, score, positions)
 //if player.count > 2, then send guid to server, server will then send up the hash. if 
 
