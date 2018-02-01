@@ -37,6 +37,7 @@ function hash(guid)
 function pushPlayerPosition()
 {
   //send up guid,player position, if ball is on your side of the court, then send up ball position too
+  //also include timestamp, server can use timestamp to detect disconnect
 }
 function pushBallPosition()
 {
