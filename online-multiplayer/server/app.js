@@ -1,7 +1,7 @@
 var app = require('express')();
 var http = require('http').Server(app);
 let gameObjects = [];//all the game objects which all threads will access
-
+let test = "test2";
 
 
 
@@ -29,13 +29,15 @@ const io = require('socket.io')(http);
 
 io.on('connection', function(socket){
     console.log('a user connected');
+
     socket.on('chat message', function(msg){
           console.log('message: ' + msg);
-          io.emit('chat message', msg);
+          io.emit('chat message', test);
         });
     socket.on('disconnect', function(){
       console.log('user disconnected');
     });
+
   });
 //socket methods
 //relay a gameItemObject, with player pos, ball pos/velocity, round num, scores
@@ -79,6 +81,18 @@ function GameService() {
         console.log("start game called:"+ roomName.toString());
         //this.myTimer = setInterval(this.gameEngine.bind(this), this.gameUpdateTime);
     }
+
+
+
+
+
+
+
+
+
+
+
+
     this.addPlayerToGame = function ()
     {
         console.log("test");
