@@ -30,34 +30,38 @@
   </nav>
   <br />
   <br />
-  <div class="container">
-    <!-- Example row of columns -->
+  <!-- Example row of columns -->
+  <form style="padding-left: 2em">
     <div class="row">
-      <form>
-        Username:
-        <br />
-        <input type="text" name="firstname">
-        <br /> Room:
-        <br />
-        <input type="text" name="lastname">
-        <input type="submit" value="Set">
-      </form>
+      <div class="col-3 col-lg-1">Name:</div>
+      <div class="col-3">
+        <input type="text" name="usernameInput">
+      </div>
     </div>
     <div class="row">
-      <!-- Display this in P5 eventually-->
-      <p>Current Room: X Controls: WASD</p> 
+      <div class="col-3 col-lg-1">Room:</div>
+      <div class="col-3">
+        <input type="text" name="roomInput">
+      </div>
     </div>
-    <div class="row">
-      <button id="buttonP1" type="button" class="btn btn-primary" onclick="joinGame(1);">Start Player 1</button>
-      <button id="buttonP2" type="button" class="btn btn-danger" onclick="joinGame(2)">Start Player 2</button>
-    </div>
+      <div class="row">
+        <div class="col-3"><input type="submit" value="Update"></div>
+      </div>
+  </form>
+  <div class="row" style="margin-left:2em">
+    <!-- Display this in P5 eventually-->
+    <p>Current Room: X Controls: WASD</p>
+  </div>
+  <div class="row" style="padding-left: 1em">
+    <button id="buttonP1" type="button" class="btn btn-primary" onclick="joinGame(1);">Start Player 1</button>
+    <button id="buttonP2" type="button" class="btn btn-danger" onclick="joinGame(2)">Start Player 2</button>
   </div>
 
   </div>
   <div id="p5-holder">
     <!-- Our p5 app will go here! -->
   </div>
-<!-- Add chatroom, and a list of all other active rooms -->
+  <!-- Add chatroom, and a list of all other active rooms -->
   </br>
   </br>
   <a href="../../index.html">Return to Slime Landing</a>
