@@ -3,6 +3,8 @@ let currentRoom = 'Main';
 let currentRole = 0; //0 = spectator, 1 = player 1, 2= player 2
 let myGuid = guid();
 let myHash = hash(myGuid);
+let myName = "John";
+let myGame = "Main"
 console.log(myGuid);
 console.log(myHash);
 var socket = io('http://localhost:8080');
@@ -15,7 +17,14 @@ socket.on('chat message', function(msg){
 //if player.count > 2, then send guid to server, server will then send up the hash. if 
 
 
-function joinGame() {
+function joinGame(playerSelection) {
+
+  let joinGameInfo = {
+    gameName:myGame,
+    playerSelect:playerSelection,
+    playerGuid:myGuid
+  }
+  socket.emit('joinGame', joinGameInfo);
   //send up join game with a guid. server will confirm by returning a failure, or returning back your hash. if myHash = serverHash, then we good.
 }
 
