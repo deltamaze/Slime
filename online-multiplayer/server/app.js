@@ -1,7 +1,7 @@
 var app = require('express')();
 var http = require('http').Server(app);
 let gameObjects = [];//all the game objects which all threads will access
-let test = "test2";
+
 
 
 
@@ -29,32 +29,60 @@ const io = require('socket.io')(http);
 
 io.on('connection', function (socket) {
 
-    this.frameCounter = 0;
-    this.myTimer;
-    this.gameEngine;
 
     console.log('a user connected');
+    
     //joinGame
     socket.on('joinGame', function (joinGameInfo) {
-        console.log(joinGameInfo);
-        addPlayerToGame();
-        // if (gameObjects[roomName] == [] || gameObjects[roomName] == null) {
+        console.log('a user joined game:');
+        console.log(gameObjects[joinGameInfo.gameName]);
+        
+        let newPlayer = {
+            playerName:joinGameInfo.playerName,
+            playerHash:hash(joinGameInfo.playerGuid),
+            ts : new Date().getTime(),
+            score: 0
+        }
 
-        //     console.log("test");
-        //     gameObjects[roomName] = {
-        //         players: [],
-        //         inProgress: false
-        //     }
-        //     this.addPlayerToGame();
-        // }
-        // else if (gameObjects[roomName].players.Length <= 2) {
-        //     this.addPlayerToGame();
-        // }
-
-        // this.room = roomName
-        // console.log("start game called:" + roomName.toString());
-        // //this.myTimer = setInterval(this.gameEngine.bind(this), this.gameUpdateTime);
-        // io.emit('chat message', test);
+        if (gameObjects[joinGameInfo.gameName] == [] || gameObjects[joinGameInfo.gameName] == null) {//no game exist for recieved gameroom, so create.
+            gameObjects[joinGameInfo.gameName] = {
+                players: [],
+                inProgress: false,
+                ts : new Date().getTime()
+            }
+            console.log('1');
+            gameObjects[joinGameInfo.gameName].players.push(newPlayer);
+            
+        }
+        
+        else if (gameObjects[joinGameInfo.gameName].players.length < 2) { //game exist and room for player to add game
+            //player 1 hash cannot = player 2 hash
+            console.log('2');
+            if(!(gameObjects[joinGameInfo.gameName].players.length ===1 && 
+                newPlayer.playerHash === gameObjects[joinGameInfo.gameName].players[0].playerHash))
+                {
+                    gameObjects[joinGameInfo.gameName].players.push(newPlayer);
+                    console.log('3');
+                    
+                }
+                else{
+                    console.log("same player joined 2 times");
+                    console.log(gameObjects);
+                    console.log('4');
+                }
+            
+        }
+        
+        if(gameObjects[joinGameInfo.gameName].players.length === 2)//start game
+        {   
+            gameObjects[joinGameInfo.gameName].inProgress = true;//start game
+            console.log('GameStart');
+            console.log(gameObjects);
+            console.log(gameObjects[joinGameInfo.gameName].players);
+        }
+        //this.myTimer = setInterval(this.gameEngine.bind(this), this.gameUpdateTime);
+        console.log('5');
+        console.log(gameObjects[joinGameInfo.gameName].players.length);
     });
     socket.on('chat message', function (msg) {
         console.log('message: ' + msg);
@@ -63,10 +91,14 @@ io.on('connection', function (socket) {
     socket.on('disconnect', function () {
         console.log('user disconnected');
     });
+    emitPlayerRefresh= function (players)
+    {
+        io.emit('playerRefresh', players);
+    }
 
 
     addPlayerToGame = function () {
-        console.log("test");
+        
 
     }
 

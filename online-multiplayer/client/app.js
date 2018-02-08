@@ -4,31 +4,50 @@ let currentRole = 0; //0 = spectator, 1 = player 1, 2= player 2
 let myGuid = guid();
 let myHash = hash(myGuid);
 let myName = "John";
-let myGame = "Main"
+let myRoom = "Main";
 console.log(myGuid);
 console.log(myHash);
 var socket = io('http://localhost:8080');
-socket.on('connect', function(){});
-socket.emit('chat message', "test");
-socket.on('chat message', function(msg){
-  console.log(msg);
+socket.on('connect', function(){}); //subscribeToGame
+
+
+socket.on(('updatePositions'+currentRoom), function(gameObjects){
+  //determine if you are currently player 1 or 2, otherwise you are spectator
+  //update ball position and enemy player position.
+  //if ball is in your side of court, don't update position
+  //if ForceResetPosition = 1 then update everything to the server positions (happens when a player scores)
 });
+
+
 //subscribe to main room player positions from server (let server return, player 1 username, player 2 username, score, positions)
 //if player.count > 2, then send guid to server, server will then send up the hash. if 
 
+function postChat(){
+  
+  //post
+  let msgText = 'Test'//grab chat text with jquery
+  //package
+  let msg = {
+    roomName:myRoom,
+    playerName:myName,
+    message:msgText
+  }
+  socket.emit('chat message', msg);
+}
+socket.on(('chat message'+currentRoom), function(msg){
+  
+  console.log(msg);
+});
 
-function joinGame(playerSelection) {
+function joinGame() {
 
   let joinGameInfo = {
-    gameName:myGame,
-    playerSelect:playerSelection,
+    gameName:myRoom,
     playerGuid:myGuid
   }
   socket.emit('joinGame', joinGameInfo);
   //send up join game with a guid. server will confirm by returning a failure, or returning back your hash. if myHash = serverHash, then we good.
 }
-
-
 function guid() {
   function s4() {
     return Math.floor((1 + Math.random()) * 0x10000)
@@ -49,6 +68,7 @@ function hash(guid)
     }
     return hash;
 }
+
 function pushPlayerPosition()
 {
   //send up guid,player position, if ball is on your side of the court, then send up ball position too
@@ -62,15 +82,6 @@ function pushWinCondition()
 {
  
 }
-function pullPlayerPosition()
-{
-  //update ball position and enemy player position.
-  //if ball is in your side of court, don't update position
-  //if ForceResetPosition = 1 then update everything to the server positions (happens when a player scores)
-}
-
-
-
 
 let engine;
 let world;
