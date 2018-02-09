@@ -35,6 +35,7 @@ io.on('connection', function (socket) {
     //joinGame
     socket.on('joinGame', function (joinGameInfo) {
         console.log('a user joined game:');
+        let targetGame = gameObjects[joinGameInfo.gameName];
         console.log(gameObjects[joinGameInfo.gameName]);
         
         let newPlayer = {
