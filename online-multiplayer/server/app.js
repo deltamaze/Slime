@@ -31,7 +31,10 @@ io.on('connection', function (socket) {
 
 
     console.log('a user connected');
-    
+    //if game already exist, then add player to object and exit out
+    //if game is new, start timer and create game
+
+    //ping/createGame
     //joinGame
     socket.on('joinGame', function (joinGameInfo) {
         console.log('a user joined game:');

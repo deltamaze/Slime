@@ -9,6 +9,24 @@ console.log(myGuid);
 console.log(myHash);
 var socket = io('http://localhost:8080');
 socket.on('connect', function(){}); //subscribeToGame
+function pingServer() {
+  //console.log(' each 1 second...');
+  let pingInfo = {
+    gameName:myRoom,
+    playerGuid:myGuid
+  }
+  socket.emit('pingServer', pingInfo);
+}
+
+var pingTimer = setInterval(pingServer, 3000);
+function updatePositions() {
+  //console.log(' each 1 second...');
+  //check gameobject to see if you are a player and game is in progress
+  //if so, push position
+}
+
+var gameTimer = setInterval(updatePositions, 500);
+
 
 
 socket.on(('updatePositions'+currentRoom), function(gameObjects){
