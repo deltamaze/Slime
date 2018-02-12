@@ -27,56 +27,47 @@ const myGuid = guid();
 const myHash = hash(myGuid);
 const myName = 'John';
 const myRoom = 'Main';
-console.log(myGuid);
-console.log(myHash);
-var socket = io('http://localhost:8080');
-socket.on('connect', function () { }); //subscribeToGame
+const socket = io('http://localhost:8080'); // eslint-disable-line no-undef
+socket.on('connect', conn => conn);
 function pingServer() {
-  //console.log(' each 1 second...');
-  let pingInfo = {
+  const pingInfo = {
     gameName: myRoom,
-    playerGuid: myGuid
-  }
+    playerGuid: myGuid,
+  };
   socket.emit('pingServer', pingInfo);
 }
 
-var pingTimer = setInterval(pingServer, 3000);
+setInterval(pingServer, 3000);
+
 function updatePositions() {
-  //console.log(' each 1 second...');
-  //check gameobject to see if you are a player and game is in progress
-  //if so, push position
+  // check gameobject to see if you are a player and game is in progress
+  // if so, push position
 }
 
-var gameTimer = setInterval(updatePositions, 500);
+// setInterval(updatePositions, 500);
 
-
-
-socket.on(('updatePositions' + currentRoom), function (gameObjects) {
-  //determine if you are currently player 1 or 2, otherwise you are spectator
-  //update ball position and enemy player position.
-  //if ball is in your side of court, don't update position
-  //if ForceResetPosition = 1 then update everything to the server positions (happens when a player scores)
+socket.on((`updatePositions${currentRoom}`), (gameObj) => {
+  // determine if you are currently player 1 or 2, otherwise you are spectator
+  // update ball position and enemy player position.
+  // if ball is in your side of court, don't update position
+  // if ForceResetPosition = 1 then update everything to the server positions
+  // do above when a player scores)
 });
 
 
-//subscribe to main room player positions from server (let server return, player 1 username, player 2 username, score, positions)
-//if player.count > 2, then send guid to server, server will then send up the hash. if 
-
 function postChat() {
-
-  //post
-  let msgText = 'Test'//grab chat text with jquery
-  //package
-  let msg = {
+  // post
+  const msgText = 'Test'; // grab chat text with jquery
+  // package
+  const msg = {
     roomName: myRoom,
     playerName: myName,
-    message: msgText
-  }
+    message: msgText,
+  };
   socket.emit('chat message', msg);
 }
-socket.on(('chat message' + currentRoom), function (msg) {
-
-  console.log(msg);
+socket.on((`chat message${currentRoom}`), (msg) =>{
+  // console.log(msg);
 });
 
 function joinGame() {
