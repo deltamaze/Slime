@@ -1,19 +1,41 @@
+function guid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return `${s4()}${s4()}-${s4()}-${s4()}-${s4()}-${s4()}${s4()}${s4()}`;
+  // return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+  //   s4() + '-' + s4() + s4() + s4();
+}
+function hash(targetString) {
+  let returnHash = 0;
+  let i;
+  let chr;
+  if (targetString.length === 0) return returnHash;
+  for (i = 0; i < targetString.length; i += 1) {
+    chr = targetString.charCodeAt(i);
+    returnHash = ((returnHash << 5) - returnHash) + chr; // eslint-disable-line no-bitwise
+    returnHash |= 0; // eslint-disable-line no-bitwise
+  }
+  return returnHash;
+}
 
-let currentRoom = 'Main';
-let currentRole = 0; //0 = spectator, 1 = player 1, 2= player 2
-let myGuid = guid();
-let myHash = hash(myGuid);
-let myName = "John";
-let myRoom = "Main";
+
+const currentRoom = 'Main';
+const myGuid = guid();
+const myHash = hash(myGuid);
+const myName = 'John';
+const myRoom = 'Main';
 console.log(myGuid);
 console.log(myHash);
 var socket = io('http://localhost:8080');
-socket.on('connect', function(){}); //subscribeToGame
+socket.on('connect', function () { }); //subscribeToGame
 function pingServer() {
   //console.log(' each 1 second...');
   let pingInfo = {
-    gameName:myRoom,
-    playerGuid:myGuid
+    gameName: myRoom,
+    playerGuid: myGuid
   }
   socket.emit('pingServer', pingInfo);
 }
@@ -29,7 +51,7 @@ var gameTimer = setInterval(updatePositions, 500);
 
 
 
-socket.on(('updatePositions'+currentRoom), function(gameObjects){
+socket.on(('updatePositions' + currentRoom), function (gameObjects) {
   //determine if you are currently player 1 or 2, otherwise you are spectator
   //update ball position and enemy player position.
   //if ball is in your side of court, don't update position
@@ -40,65 +62,43 @@ socket.on(('updatePositions'+currentRoom), function(gameObjects){
 //subscribe to main room player positions from server (let server return, player 1 username, player 2 username, score, positions)
 //if player.count > 2, then send guid to server, server will then send up the hash. if 
 
-function postChat(){
-  
+function postChat() {
+
   //post
   let msgText = 'Test'//grab chat text with jquery
   //package
   let msg = {
-    roomName:myRoom,
-    playerName:myName,
-    message:msgText
+    roomName: myRoom,
+    playerName: myName,
+    message: msgText
   }
   socket.emit('chat message', msg);
 }
-socket.on(('chat message'+currentRoom), function(msg){
-  
+socket.on(('chat message' + currentRoom), function (msg) {
+
   console.log(msg);
 });
 
 function joinGame() {
 
   let joinGameInfo = {
-    gameName:myRoom,
-    playerGuid:myGuid
+    gameName: myRoom,
+    playerGuid: myGuid
   }
   socket.emit('joinGame', joinGameInfo);
   //send up join game with a guid. server will confirm by returning a failure, or returning back your hash. if myHash = serverHash, then we good.
 }
-function guid() {
-  function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
-  }
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-    s4() + '-' + s4() + s4() + s4();
-}
-function hash(guid)
-{
-    var hash = 0, i, chr;
-    if (guid.length === 0) return hash;
-    for (i = 0; i < guid.length; i++) {
-      chr   = guid.charCodeAt(i);
-      hash  = ((hash << 5) - hash) + chr;
-      hash |= 0; // Convert to 32bit integer
-    }
-    return hash;
-}
 
-function pushPlayerPosition()
-{
+
+function pushPlayerPosition() {
   //send up guid,player position, if ball is on your side of the court, then send up ball position too
   //also include timestamp, server can use timestamp to detect disconnect
 }
-function pushBallPosition()
-{
+function pushBallPosition() {
   //send up guid,ball position, if ball is on your side of the court, then send up ball position too
 }
-function pushWinCondition()
-{
- 
+function pushWinCondition() {
+
 }
 
 let engine;
@@ -126,13 +126,13 @@ function setup() {
   world.gravity.scale = .0005
   Matter.Engine.run(engine);
 
-  player1 = new Player(world, 40, 150, 200,1);
-  player2 = new Player(world, 40, canvasWidth-150, 200,2);
+  player1 = new Player(world, 40, 150, 200, 1);
+  player2 = new Player(world, 40, canvasWidth - 150, 200, 2);
   player2.colorBlue = 0;
   player2.colorRed = 255;
-  p1Floor=new Boundry(world, canvasWidth / 4, canvasHeight, canvasWidth/2, 100,0, 'p1Floor')
-  p2Floor=new Boundry(world, canvasWidth/4 + canvasWidth/2 , canvasHeight, canvasWidth/2, 100,0,'p2Floor')
-  ball=new Ball(world, canvasWidth/2,100,10);
+  p1Floor = new Boundry(world, canvasWidth / 4, canvasHeight, canvasWidth / 2, 100, 0, 'p1Floor')
+  p2Floor = new Boundry(world, canvasWidth / 4 + canvasWidth / 2, canvasHeight, canvasWidth / 2, 100, 0, 'p2Floor')
+  ball = new Ball(world, canvasWidth / 2, 100, 10);
   resetBall();
   gameBodies.push(player1);
   gameBodies.push(player2);
@@ -142,51 +142,45 @@ function setup() {
   gameBodies.push(new Boundry(world, 0, canvasHeight / 2, 100, canvasHeight));//leftwall
   gameBodies.push(new Boundry(world, canvasWidth, canvasHeight / 2, 100, canvasHeight));//rightwall
   gameBodies.push(new Boundry(world, canvasWidth / 2, canvasHeight, 15, 230));//net
-  gameBodies.push(new Boundry(world, canvasWidth / 2, 285, 0,7.5,3));//net triangle
+  gameBodies.push(new Boundry(world, canvasWidth / 2, 285, 0, 7.5, 3));//net triangle
   gameBodies.push(new Boundry(world, canvasWidth / 2, 0, canvasWidth, 100));//ciel
 
-  Matter.Events.on(engine,'collisionStart',collision);
+  Matter.Events.on(engine, 'collisionStart', collision);
 }
 
-function collision(event){
-  if(event.pairs[0].bodyA.label === "ball" || event.pairs[0].bodyB.label === "ball")
-  {
-    if(event.pairs[0].bodyA.label === "player1" || event.pairs[0].bodyB.label === "player1"){
-      if(Date.now() > player1.lastHit+500)
-      {
+function collision(event) {
+  if (event.pairs[0].bodyA.label === "ball" || event.pairs[0].bodyB.label === "ball") {
+    if (event.pairs[0].bodyA.label === "player1" || event.pairs[0].bodyB.label === "player1") {
+      if (Date.now() > player1.lastHit + 500) {
         player1.hitCount++;
         player1.lastHit = Date.now();
-        if (player1.hitCount>3)
-        {
+        if (player1.hitCount > 3) {
           player2.score++;
           resetBall();
         }
       }
-      player2.hitCount =0;
+      player2.hitCount = 0;
     }
-    if(event.pairs[0].bodyA.label === "player2" || event.pairs[0].bodyB.label === "player2"){
-      if(Date.now() > player2.lastHit+500)
-      {
+    if (event.pairs[0].bodyA.label === "player2" || event.pairs[0].bodyB.label === "player2") {
+      if (Date.now() > player2.lastHit + 500) {
         player2.hitCount++;
         player2.lastHit = Date.now();
-        if (player2.hitCount>3)
-        {
+        if (player2.hitCount > 3) {
           player1.score++;
           resetBall();
         }
       }
-      player1.hitCount =0;
+      player1.hitCount = 0;
     }
   }
 
 
-  if(event.pairs[0].bodyA.label === "ball" || event.pairs[0].bodyB.label === "ball")
-  {
-    if(event.pairs[0].bodyA.label === "p1Floor" || event.pairs[0].bodyB.label === "p1Floor"){
+  if (event.pairs[0].bodyA.label === "ball" || event.pairs[0].bodyB.label === "ball") {
+    if (event.pairs[0].bodyA.label === "p1Floor" || event.pairs[0].bodyB.label === "p1Floor") {
       player2.score++;
       resetBall();
     }
-    if(event.pairs[0].bodyA.label === "p2Floor" || event.pairs[0].bodyB.label === "p2Floor"){
+    if (event.pairs[0].bodyA.label === "p2Floor" || event.pairs[0].bodyB.label === "p2Floor") {
       player1.score++;
       resetBall();
     }
@@ -196,7 +190,7 @@ function collision(event){
 }
 
 function draw() {
- 
+
   background(51);
   displayGameText();
   gameBodies.forEach(function (gameBody) {
@@ -229,8 +223,7 @@ function draw() {
     ApplyVertMovement(player1, -1);
   }
 
-  if(frameCount%120 ===0)
-  {
+  if (frameCount % 120 === 0) {
     //Matter.Body.setPosition(ball.body, { x: 200, y: 100 })
   }
   //debug key, S
@@ -245,38 +238,36 @@ function ApplyUpTick(player) {
 function ApplyVertMovement(player, direction) {
   Matter.Body.applyForce(player.body, player.body.position, { x: direction * vertForce, y: 0 })
 }
-function resetBall()
-{
-  Matter.Body.setPosition(ball.body, { x: canvasWidth/2, y: 100 });
-  Matter.Body.setVelocity(ball.body, {x:20*(Math.random()-.5),y:-5*Math.random()})
-  player1.hitCount =0;
-  player2.hitCount =0;
+function resetBall() {
+  Matter.Body.setPosition(ball.body, { x: canvasWidth / 2, y: 100 });
+  Matter.Body.setVelocity(ball.body, { x: 20 * (Math.random() - .5), y: -5 * Math.random() })
+  player1.hitCount = 0;
+  player2.hitCount = 0;
 }
-function displayGameText()
-{
-  let p1ScoreText = 'Score: '+player1.score.toString();
-  let p2ScoreText = 'Score: '+player2.score.toString();
-  let p1HitCountText = 'Hits: '+player1.hitCount.toString()+'/3';
-  let p2HitCountText = 'Hits: '+player2.hitCount.toString()+'/3';
-  let p1TextXPos = canvasWidth/2 - canvasWidth/3;
-  let p2TextXPos = canvasWidth/2 + canvasWidth/6;
+function displayGameText() {
+  let p1ScoreText = 'Score: ' + player1.score.toString();
+  let p2ScoreText = 'Score: ' + player2.score.toString();
+  let p1HitCountText = 'Hits: ' + player1.hitCount.toString() + '/3';
+  let p2HitCountText = 'Hits: ' + player2.hitCount.toString() + '/3';
+  let p1TextXPos = canvasWidth / 2 - canvasWidth / 3;
+  let p2TextXPos = canvasWidth / 2 + canvasWidth / 6;
   //p1
   textSize(32);
   noStroke();
-  fill(0,100,255);
+  fill(0, 100, 255);
   text(p1ScoreText, p1TextXPos, 100); // Text wraps within text box
   textSize(24);
   noStroke();
-  fill(0,100,255);
+  fill(0, 100, 255);
   text(p1HitCountText, p1TextXPos, 150); // Text wraps within text box
   //p2
   textSize(32);
   noStroke();
-  fill(255,100,0);
+  fill(255, 100, 0);
   text(p2ScoreText, p2TextXPos, 100); // Text wraps within text box
   textSize(24);
   noStroke();
-  fill(255,100,0);
+  fill(255, 100, 0);
   text(p2HitCountText, p2TextXPos, 150); // Text wraps within text box
 
 
