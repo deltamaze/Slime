@@ -55,7 +55,7 @@ socket.on((`updatePositions${currentRoom}`), (gameObj) => {
 });
 
 
-function postChat() {
+function postChat() { // eslint-disable-line no-unused-vars
   // post
   const msgText = 'Test'; // grab chat text with jquery
   // package
@@ -66,29 +66,26 @@ function postChat() {
   };
   socket.emit('chat message', msg);
 }
-socket.on((`chat message${currentRoom}`), (msg) =>{
+socket.on((`chat message${currentRoom}`), (msg) => {
   // console.log(msg);
 });
 
-function joinGame() {
-
-  let joinGameInfo = {
+function joinGame() { // eslint-disable-line no-unused-vars
+  const joinGameInfo = {
     gameName: myRoom,
-    playerGuid: myGuid
-  }
+    playerGuid: myGuid,
+  };
   socket.emit('joinGame', joinGameInfo);
-  //send up join game with a guid. server will confirm by returning a failure, or returning back your hash. if myHash = serverHash, then we good.
+  // send up join game with a guid. server will confirm by returning a failure,
+  // or returning back your hash. if myHash = serverHash, then we good.
 }
 
 
-function pushPlayerPosition() {
-  //send up guid,player position, if ball is on your side of the court, then send up ball position too
-  //also include timestamp, server can use timestamp to detect disconnect
+function pushPlayerPosition() { // eslint-disable-line no-unused-vars
+  // send up guid,player position,
+  // if ball is on your side of the court, then send up ball position too
 }
-function pushBallPosition() {
-  //send up guid,ball position, if ball is on your side of the court, then send up ball position too
-}
-function pushWinCondition() {
+function pushWinCondition() { // eslint-disable-line no-unused-vars
 
 }
 
@@ -97,18 +94,17 @@ let world;
 let player1;
 let player2;
 let ball;
-let gameBodies = [];
+const gameBodies = [];
 
-let canvasHeight = 400;
-let canvasWidth = 800;
-let playerGroundedYPos = 329
-let ballGroundedYPos = 339
-let vertForce = .05;
-let defaultTicksOfUpwardThrust = 10;
-let upForcePerTick = .05;
-let downForce = .03;
-function setup() {
-
+const canvasHeight = 400;
+const canvasWidth = 800;
+const playerGroundedYPos = 329;
+const ballGroundedYPos = 339;
+const vertForce = 0.05;
+const defaultTicksOfUpwardThrust = 10;
+const upForcePerTick = 0.05;
+const downForce = 0.03;
+function setup() { // eslint-disable-line no-unused-vars
   let canvas = createCanvas(canvasWidth, canvasHeight);
   canvas.parent('p5-holder');
   engine = Matter.Engine.create();
@@ -263,4 +259,3 @@ function displayGameText() {
 
 
 }
-
