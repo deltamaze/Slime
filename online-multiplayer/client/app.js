@@ -105,32 +105,31 @@ const defaultTicksOfUpwardThrust = 10;
 const upForcePerTick = 0.05;
 const downForce = 0.03;
 function setup() { // eslint-disable-line no-unused-vars
-  let canvas = createCanvas(canvasWidth, canvasHeight);
+  const canvas = createCanvas(canvasWidth, canvasHeight); // eslint-disable-line no-undef
   canvas.parent('p5-holder');
-  engine = Matter.Engine.create();
-  engine.timing.timeScale = .8;
-  world = engine.world;
-  world.gravity.scale = .0005
+  engine = Matter.Engine.create();// eslint-disable-line no-undef
+  engine.timing.timeScale = 0.8;
+  engine.world.gravity.scale = 0.0005;
   Matter.Engine.run(engine);
 
-  player1 = new Player(world, 40, 150, 200, 1);
-  player2 = new Player(world, 40, canvasWidth - 150, 200, 2);
+  player1 = new Player(engine.world, 40, 150, 200, 1);
+  player2 = new Player(engine.world, 40, canvasWidth - 150, 200, 2);
   player2.colorBlue = 0;
   player2.colorRed = 255;
-  p1Floor = new Boundry(world, canvasWidth / 4, canvasHeight, canvasWidth / 2, 100, 0, 'p1Floor')
-  p2Floor = new Boundry(world, canvasWidth / 4 + canvasWidth / 2, canvasHeight, canvasWidth / 2, 100, 0, 'p2Floor')
-  ball = new Ball(world, canvasWidth / 2, 100, 10);
+  p1Floor = new Boundry(engine.world, canvasWidth / 4, canvasHeight, canvasWidth / 2, 100, 0, 'p1Floor')
+  p2Floor = new Boundry(engine.world, canvasWidth / 4 + canvasWidth / 2, canvasHeight, canvasWidth / 2, 100, 0, 'p2Floor')
+  ball = new Ball(engine.world, canvasWidth / 2, 100, 10);
   resetBall();
   gameBodies.push(player1);
   gameBodies.push(player2);
   gameBodies.push(ball);
   gameBodies.push(p1Floor);//p1floor
   gameBodies.push(p2Floor);
-  gameBodies.push(new Boundry(world, 0, canvasHeight / 2, 100, canvasHeight));//leftwall
-  gameBodies.push(new Boundry(world, canvasWidth, canvasHeight / 2, 100, canvasHeight));//rightwall
-  gameBodies.push(new Boundry(world, canvasWidth / 2, canvasHeight, 15, 230));//net
-  gameBodies.push(new Boundry(world, canvasWidth / 2, 285, 0, 7.5, 3));//net triangle
-  gameBodies.push(new Boundry(world, canvasWidth / 2, 0, canvasWidth, 100));//ciel
+  gameBodies.push(new Boundry(engine.world, 0, canvasHeight / 2, 100, canvasHeight));//leftwall
+  gameBodies.push(new Boundry(engine.world, canvasWidth, canvasHeight / 2, 100, canvasHeight));//rightwall
+  gameBodies.push(new Boundry(engine.world, canvasWidth / 2, canvasHeight, 15, 230));//net
+  gameBodies.push(new Boundry(engine.world, canvasWidth / 2, 285, 0, 7.5, 3));//net triangle
+  gameBodies.push(new Boundry(engine.world, canvasWidth / 2, 0, canvasWidth, 100));//ciel
 
   Matter.Events.on(engine, 'collisionStart', collision);
 }
