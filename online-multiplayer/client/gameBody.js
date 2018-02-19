@@ -1,23 +1,22 @@
-class GameBody {
+/* global Matter beginShape endShape vertex fill stroke push pop CLOSE */
 
+class GameBody { // eslint-disable-line no-unused-vars
   constructor(engineWorld, matterBody) {
-
     Matter.World.add(engineWorld, matterBody);
     this.body = matterBody;
-    //default color is white, used by p5
     this.colorRed = 255;
     this.colorGreen = 255;
     this.colorBlue = 255;
   }
-  //private
+  // private
   drawFromVertices() {
     beginShape();
-    for (var a = 0; a < this.body.vertices.length; a += 1) {
+    for (let a = 0; a < this.body.vertices.length; a += 1) {
       vertex(this.body.vertices[a].x, this.body.vertices[a].y);
     }
     endShape(CLOSE);
   }
-  //public
+  // public
   show() {
     fill(this.colorRed, this.colorGreen, this.colorBlue);
     stroke(this.colorRed, this.colorGreen, this.colorBlue);
@@ -25,5 +24,4 @@ class GameBody {
     this.drawFromVertices();
     pop();
   }
-
 }

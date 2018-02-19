@@ -2,9 +2,9 @@
   "name": "slime-client",
   "version": "1.0.0",
   "description": "client side for slime",
-  
   "devDependencies": {
     "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-config-p5js": "^1.0.1",
     "eslint-plugin-import": "^2.8.0"
   }
 }
