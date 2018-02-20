@@ -5,6 +5,8 @@
   <script language="javascript" type="text/javascript" src="../../libraries/p5.js"></script>
   <script language="javascript" type="text/javascript" src="../../libraries/matter.js"></script>
   <script language="javascript" type="text/javascript" src="../../libraries/socket.io.slim.js"></script>
+  <script language="javascript" type="text/javascript" src="../../libraries/jquery-3.3.1.min.js"></script>
+  <script language="javascript" type="text/javascript" src="../../libraries/tether.min.js"></script>
   <script language="javascript" type="text/javascript" src="../../libraries/bootstrap.js"></script>
   <link href="../../libraries/bootstrap.css" rel="stylesheet">
   <!-- uncomment lines below to include extra p5 libraries -->
@@ -30,42 +32,80 @@
   </nav>
   <br />
   <br />
-  <!-- Example row of columns -->
-  <form style="padding-left: 2em">
-    <div class="row">
-      <div class="col-3 col-lg-1">Name:</div>
-      <div class="col-3">
-        <input type="text" name="usernameInput">
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-3 col-lg-1">Room:</div>
-      <div class="col-3">
-        <input type="text" name="roomInput">
-      </div>
-    </div>
+  <div id="bodyContainer" style="padding-left: 2em; width: 900px">
+    <!-- Example row of columns -->
+    <form>
       <div class="row">
-        <div class="col-3"><input type="submit" value="Update"></div>
+        <div class="col-3 col-lg-2">Username:</div>
+        <div class="col-3">
+          <input type="text" name="usernameInput">
+        </div>
       </div>
-  </form>
-  <div class="row" style="margin-left:2em">
-    <!-- Display this in P5 eventually-->
-    <p>Current Room: X Controls: WASD</p>
-  </div>
-  <div class="row" style="padding-left: 1em">
-    <button id="buttonP1" type="button" class="btn btn-primary" onclick="joinGame();">Join Game</button>
-  </div>
+      <div class="row">
+        <div class="col-3 col-lg-2">GameRoom:</div>
+        <div class="col-3">
+          <input type="text" name="roomInput">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-3">
+          <input type="submit" value="Update">
+        </div>
+      </div>
+    </form>
+    <div class="row">
+      <!-- Display this in P5 eventually-->
+      <p>Current Room: X Controls: WASD</p>
+    </div>
+    <div class="row"  style="padding-left: 2em">
+      <button id="buttonP1" type="button" class="btn btn-primary" onclick="joinGame();">Join Game</button>
+    </div>
 
+
+    <div id="p5-holder">
+      <!-- Our p5 app will go here! -->
+    </div>
+    <!-- Add chatroom, and a list of all other active rooms -->
+    <form id="chatInput" style="width: 600px;
+  height: 40px; 
+  margin-bottom: 0px;
+  border: #5bc0de6b;
+  border-style: solid;
+  border-width: thin;">
+
+
+      <button class="btn btn-success" style="float: right" ; type="submit">Send</button>
+      <div style="overflow: hidden; padding-right: .5em;">
+        <input class="form-control ng-pristine ng-invalid ng-touched" id="chatText" maxlength="50" name="chatText" required="" type="text">
+      </div>​
+    </form>
+    <div id="chat" style="
+    overflow-y: scroll; 
+    height: 200px; 
+    width: 600px;
+    border: #5bc0de6b;
+    border-style: solid;
+    border-width: thin;">
+      <ul>
+        <li>Welcome to Slime Vball</li>
+        <li>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</li>
+        <li>Aliquam tincidunt mauris eu risus.</li>
+        <li>Vestibulum auctor dapibus neque.</li>
+        <li>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</li>
+        <li>Aliquam tincidunt mauris eu risus.</li>
+        <li>Vestibulum auctor dapibus neque.</li>
+        <li>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</li>
+        <li>Aliquam tincidunt mauris eu risus.</li>
+        <li>Vestibulum auctor dapibus neque.</li>
+      </ul>
+    </div>
+    </br>
+    </br>
+
+    <a href="../../index.html">Return to Slime Landing</a>
+    </br>
+    <a href="https://www.wpooley.com">Return Home</a>
   </div>
-  <div id="p5-holder">
-    <!-- Our p5 app will go here! -->
-  </div>
-  <!-- Add chatroom, and a list of all other active rooms -->
-  </br>
-  </br>
-  <a href="../../index.html">Return to Slime Landing</a>
-  </br>
-  <a href="https://www.wpooley.com">Return Home</a>
 </body>
 
 </html>

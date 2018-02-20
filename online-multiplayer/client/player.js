@@ -10,7 +10,7 @@ class Player extends GameBody { // eslint-disable-line no-unused-vars
     let ticksOfUpwardThrust = 0; // eslint-disable-line
 
     const options = {
-      label: `player ${playerId.toString()}`,
+      label: `player${playerId.toString()}`,
       circleRadius: radius,
       isStatic: false,
       friction: 0,
