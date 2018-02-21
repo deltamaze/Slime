@@ -32,32 +32,30 @@
   </nav>
   <br />
   <br />
-  <div id="bodyContainer" style="padding-left: 2em; width: 900px">
+  <div id="bodyContainer" style="padding-left: 20px; width: 900px">
     <!-- Example row of columns -->
-    <form>
+
+    <div class="row" style="height:20px">
+      <p>Current Username:</p><p id="displayUsername">SlimePlayer</p>
+    </div>
+    <div class="row" style="height:20px">
+      <p>Current Room:</p><p id="displayRoom">Main</p>
+    </div>
+    <div class="row" style="height:20px">
+      <p>Controls: WASD</p>
+    </div>
+    <form onsubmit="event.preventDefault();updateSettings();return false">
       <div class="row">
-        <div class="col-3 col-lg-2">Username:</div>
-        <div class="col-3">
-          <input type="text" name="usernameInput">
-        </div>
+          <input type="text" id="usernameInput" maxlength="50" placeholder="change username" name="usernameInput" required="">
       </div>
       <div class="row">
-        <div class="col-3 col-lg-2">GameRoom:</div>
-        <div class="col-3">
-          <input type="text" name="roomInput">
-        </div>
+          <input type="text" id="roomInput" maxlength="50" placeholder="change game rooms" name="roomInput" required="">
       </div>
       <div class="row">
-        <div class="col-3">
-          <input type="submit" value="Update">
-        </div>
+          <input type="submit" value="Update" class="btn btn-default" type="submit">
       </div>
     </form>
-    <div class="row">
-      <!-- Display this in P5 eventually-->
-      <p>Current Room: X Controls: WASD</p>
-    </div>
-    <div class="row"  style="padding-left: 2em">
+    <div class="row"  style="padding-left: 10px">
       <button id="buttonP1" type="button" class="btn btn-primary" onclick="joinGame();">Join Game</button>
     </div>
 
@@ -66,7 +64,7 @@
       <!-- Our p5 app will go here! -->
     </div>
     <!-- Add chatroom, and a list of all other active rooms -->
-    <form id="chatInput" style="width: 600px;
+    <form id="chatInput"  onsubmit="event.preventDefault();postChat();return false" style="width: 600px;
   height: 40px; 
   margin-bottom: 0px;
   border: #5bc0de6b;
@@ -74,9 +72,9 @@
   border-width: thin;">
 
 
-      <button class="btn btn-success" style="float: right" ; type="submit">Send</button>
-      <div style="overflow: hidden; padding-right: .5em;">
-        <input class="form-control ng-pristine ng-invalid ng-touched" id="chatText" maxlength="50" name="chatText" required="" type="text">
+      <button class="btn btn-success" style="float: right" id="chatSubmit" type="submit">Send</button>
+      <div style="overflow: hidden; padding-right: 2px;">
+        <input class="form-control ng-pristine ng-invalid ng-touched" id="chatText" maxlength="50" name="chatText" placeholder="Enter ChatMsg" required="" type="text">
       </div>​
     </form>
     <div id="chat" style="
@@ -86,17 +84,8 @@
     border: #5bc0de6b;
     border-style: solid;
     border-width: thin;">
-      <ul>
+      <ul id="chatUl">
         <li>Welcome to Slime Vball</li>
-        <li>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</li>
-        <li>Aliquam tincidunt mauris eu risus.</li>
-        <li>Vestibulum auctor dapibus neque.</li>
-        <li>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</li>
-        <li>Aliquam tincidunt mauris eu risus.</li>
-        <li>Vestibulum auctor dapibus neque.</li>
-        <li>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</li>
-        <li>Aliquam tincidunt mauris eu risus.</li>
-        <li>Vestibulum auctor dapibus neque.</li>
       </ul>
     </div>
     </br>

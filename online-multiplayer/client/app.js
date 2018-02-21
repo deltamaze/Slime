@@ -1,4 +1,4 @@
-/* global Player Boundry Ball Matter keyIsDown textSize
+/* global Player document Boundry Ball Matter keyIsDown textSize
 noStroke background fill text io createCanvas */
 
 
@@ -26,12 +26,45 @@ function hash(targetString) {
 }
 
 
-const currentRoom = 'Main';
 const myGuid = guid();
 const myHash = hash(myGuid);
-const myName = 'John';
-const myRoom = 'Main';
+let myName = 'SlimePlayer';
+let myRoom = 'Main';
+
+// show current name/room in html
 const socket = io('http://localhost:8080');
+function addLiToChatUl(msg) {
+  const ul = document.getElementById('chatUl');// .prepend(`<li>${msg}</li>`);
+  const li = document.createElement('li');
+  li.innerHTML = msg;
+  ul.prepend(li);
+}
+function setRoomListeners() {
+  socket.on((`chat message${myRoom}`), (msg) => {
+    addLiToChatUl(`${msg.playerName}:${msg.message}`);
+  });
+}
+function clearRoomListeners() {
+  socket.removeAllListeners(`chat message${myRoom}`);
+}
+setRoomListeners();
+
+
+function updateDisplaySettings() {
+  document.getElementById('displayUsername').innerHTML = myName;
+  document.getElementById('displayRoom').innerHTML = myRoom;
+}
+function updateSettings() { // eslint-disable-line no-unused-vars
+  clearRoomListeners();
+  myName = document.getElementById('usernameInput').value;
+  myRoom = document.getElementById('roomInput').value;
+  // clear text fields
+  document.getElementById('usernameInput').value = '';
+  document.getElementById('roomInput').value = '';
+  updateDisplaySettings();
+  setRoomListeners();
+}
+
 socket.on('connect', conn => conn);
 function pingServer() {
   const pingInfo = {
@@ -43,6 +76,7 @@ function pingServer() {
 
 setInterval(pingServer, 3000);
 
+
 function updatePositions() {
   // check gameobject to see if you are a player and game is in progress
   // if so, push position
@@ -50,7 +84,7 @@ function updatePositions() {
 
 // setInterval(updatePositions, 500);
 
-socket.on((`updatePositions${currentRoom}`), (gameObj) => {
+socket.on((`updatePositions${myRoom}`), (gameObj) => {
   // determine if you are currently player 1 or 2, otherwise you are spectator
   // update ball position and enemy player position.
   // if ball is in your side of court, don't update position
@@ -58,21 +92,19 @@ socket.on((`updatePositions${currentRoom}`), (gameObj) => {
   // do above when a player scores)
 });
 
-
-function postChat() {
-  // post
-  const msgText = 'Test'; // grab chat text with jquery
-  // package
+function postChat() { // eslint-disable-line no-unused-vars
+  // grab content of chat
+  const chatInputField = document.getElementById('chatText');
+  const msgText = chatInputField.value;
+  // post package
   const msg = {
     roomName: myRoom,
     playerName: myName,
     message: msgText,
   };
   socket.emit('chat message', msg);
+  chatInputField.value = '';
 }
-socket.on((`chat message${currentRoom}`), (msg) => {
-  // console.log(msg);
-});
 
 function joinGame() { // eslint-disable-line no-unused-vars
   const joinGameInfo = {
