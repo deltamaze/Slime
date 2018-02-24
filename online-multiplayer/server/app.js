@@ -25,6 +25,18 @@ http.listen(PORT, () => {
 
 const io = require('socket.io')(http);
 
+const hash = (guid) => {
+  let hashVal = 0;
+  let i;
+  let chr;
+  if (guid.length === 0) return hashVal;
+  for (i = 0; i < guid.length; i += 1) {
+    chr = guid.charCodeAt(i);
+    hashVal = ((hashVal << 5) - hashVal) + chr; // eslint-disable-line no-bitwise
+    hashVal |= 0; // eslint-disable-line no-bitwise
+  }
+  return hashVal;
+};
 io.on('connection', (socket) => {
   console.log('a user connected');
   // if game already exist, then add player to object and exit out
@@ -34,7 +46,7 @@ io.on('connection', (socket) => {
   // joinGame
   socket.on('joinGame', (joinGameInfo) => {
     console.log('a user joined game:');
-    // console.log(gameObjects[joinGameInfo.gameName]);
+    console.log(joinGameInfo);
 
     const newPlayer = {
       playerName: joinGameInfo.playerName,
@@ -43,24 +55,17 @@ io.on('connection', (socket) => {
       score: 0,
     };
     // if no game exist for recieved gameroom, so create.
-    if (gameObjects[joinGameInfo.gameName] === [] || gameObjects[joinGameInfo.gameName] == null) {
-      gameObjects[joinGameInfo.gameName] = {
-        players: [],
-        inProgress: false,
-        ts: new Date().getTime(),
-      };
-      gameObjects[joinGameInfo.gameName].players.push(newPlayer);
-    } else if (gameObjects[joinGameInfo.gameName].players.length < 2) {
-      // game exist and there 0 or 1 players
-      // player 1 hash cannot = player 2 hash
-      if (!(gameObjects[joinGameInfo.gameName].players.length === 1 &&
-        newPlayer.playerHash === gameObjects[joinGameInfo.gameName].players[0].playerHash)) {
-        gameObjects[joinGameInfo.gameName].players.push(newPlayer);
-      } else {
-        console.log('same player joined 2 times');
-        console.log(gameObjects);
-      }
-    }
+    // if (gameObjects[joinGameInfo.gameName].players.length < 2) {
+    //   // game exist and there 0 or 1 players
+    //   // player 1 hash cannot = player 2 hash
+    //   if (!(gameObjects[joinGameInfo.gameName].players.length === 1 &&
+    //     newPlayer.playerHash === gameObjects[joinGameInfo.gameName].players[0].playerHash)) {
+    //     gameObjects[joinGameInfo.gameName].players.push(newPlayer);
+    //   } else {
+    //     console.log('same player joined 2 times');
+    //     console.log(gameObjects);
+    //   }
+    // }
 
     if (gameObjects[joinGameInfo.gameName].players.length === 2) { // start game
       gameObjects[joinGameInfo.gameName].inProgress = true;
@@ -73,12 +78,41 @@ io.on('connection', (socket) => {
     console.log(gameObjects[joinGameInfo.gameName].players.length);
   });
   socket.on('chat message', (msg) => {
-    console.log(msg);
     io.emit(`chat message${msg.roomName}`, msg);
   });
   socket.on('disconnect', () => {
     console.log('user disconnected');
   });
+  socket.on('pingServer', (pingInfo) => {
+    const userInfo = {
+      username: pingInfo.username,
+      userHash: hash(pingInfo.userGuid),
+      ts: new Date().getTime(),
+      playerNum: 0,
+      score: 0,
+    };
+    // if game doesn't exist, create
+    if (gameObjects[pingInfo.gameName] === [] || gameObjects[pingInfo.gameName] == null) {
+      gameObjects[pingInfo.gameName] = {
+        players: [],
+        inProgress: false,
+        ts: new Date().getTime(),
+      };
+      // if user not in game, add
+      let userInGame = false;
+      gameObjects[pingInfo.gameName].players.forEach((player) => {
+        if (player.userHash === userInfo.userHash) {
+          userInGame = true;
+          gameObjects[pingInfo.gameName].players[userInfo.userHash].ts = new Date().getTime();
+        }
+      });
+      if (userInGame === false) {
+        gameObjects[pingInfo.gameName].players[userInfo.userHash] = userInfo;
+      }
+    }
+    console.log(gameObjects[pingInfo.gameName].players[userInfo.userHash]);
+  });
+
   const emitPlayerRefresh = (players) => {
     io.emit('playerRefresh', players);
   };
@@ -97,18 +131,6 @@ io.on('connection', (socket) => {
     if (this.frameCounter > 3000) { // if both players dead, or game time past 10 minutes, end timer
       clearInterval(this.myTimer);
     }
-  };
-  const hash = (guid) => {
-    let hashVal = 0;
-    let i;
-    let chr;
-    if (guid.length === 0) return hashVal;
-    for (i = 0; i < guid.length; i += 1) {
-      chr = guid.charCodeAt(i);
-      hashVal = ((hashVal << 5) - hashVal) + chr; // eslint-disable-line no-bitwise
-      hashVal |= 0; // eslint-disable-line no-bitwise
-    }
-    return hashVal;
   };
   const checkGameOver = () => {
     // if score hits score limit, end game, return true

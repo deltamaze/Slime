@@ -69,7 +69,8 @@ socket.on('connect', conn => conn);
 function pingServer() {
   const pingInfo = {
     gameName: myRoom,
-    playerGuid: myGuid,
+    userGuid: myGuid,
+    username: myName,
   };
   socket.emit('pingServer', pingInfo);
 }
