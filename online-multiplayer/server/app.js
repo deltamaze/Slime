@@ -13,11 +13,11 @@ app.use((req, res, next) => {
   next();
 });
 console.log('Server Started');
-app.get('/JoinSlimeGame/:roomName', (req, res) => {
-  gameService = new GameService();
-  gameService.playerJoinGame(req.params.roomName);
-  res.send(`<h1>${req.params.roomName}</h1>`);
-});
+// app.get('/GetActiveSlimeGames/', (req, res) => {
+//   gameService = new GameService();
+//   gameService.playerJoinGame(req.params.roomName);
+//   res.send(`<h1>${req.params.roomName}</h1>`);
+// });
 
 const PORT = process.env.PORT || 8080;
 http.listen(PORT, () => {
@@ -34,8 +34,7 @@ io.on('connection', (socket) => {
   // joinGame
   socket.on('joinGame', (joinGameInfo) => {
     console.log('a user joined game:');
-    const targetGame = gameObjects[joinGameInfo.gameName];
-    console.log(gameObjects[joinGameInfo.gameName]);
+    // console.log(gameObjects[joinGameInfo.gameName]);
 
     const newPlayer = {
       playerName: joinGameInfo.playerName,
