@@ -12,22 +12,22 @@ function guid() {
   // return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
   //   s4() + '-' + s4() + s4() + s4();
 }
-function hash(targetString) {
-  let returnHash = 0;
-  let i;
-  let chr;
-  if (targetString.length === 0) return returnHash;
-  for (i = 0; i < targetString.length; i += 1) {
-    chr = targetString.charCodeAt(i);
-    returnHash = ((returnHash << 5) - returnHash) + chr; // eslint-disable-line no-bitwise
-    returnHash |= 0; // eslint-disable-line no-bitwise
-  }
-  return returnHash;
-}
+// function hash(targetString) {
+//   let returnHash = 0;
+//   let i;
+//   let chr;
+//   if (targetString.length === 0) return returnHash;
+//   for (i = 0; i < targetString.length; i += 1) {
+//     chr = targetString.charCodeAt(i);
+//     returnHash = ((returnHash << 5) - returnHash) + chr; // eslint-disable-line no-bitwise
+//     returnHash |= 0; // eslint-disable-line no-bitwise
+//   }
+//   return returnHash;
+// }
 
 
 const myGuid = guid();
-const myHash = hash(myGuid);
+// const myHash = hash(myGuid);
 let myName = 'SlimePlayer';
 let myRoom = 'Main';
 
@@ -78,20 +78,20 @@ function pingServer() {
 setInterval(pingServer, 3000);
 
 
-function updatePositions() {
-  // check gameobject to see if you are a player and game is in progress
-  // if so, push position
-}
+// function updatePositions() {
+//   // check gameobject to see if you are a player and game is in progress
+//   // if so, push position
+// }
 
 // setInterval(updatePositions, 500);
 
-socket.on((`updatePositions${myRoom}`), (gameObj) => {
-  // determine if you are currently player 1 or 2, otherwise you are spectator
-  // update ball position and enemy player position.
-  // if ball is in your side of court, don't update position
-  // if ForceResetPosition = 1 then update everything to the server positions
-  // do above when a player scores)
-});
+// socket.on((`updatePositions${myRoom}`), (gameObj) => {
+//   // determine if you are currently player 1 or 2, otherwise you are spectator
+//   // update ball position and enemy player position.
+//   // if ball is in your side of court, don't update position
+//   // if ForceResetPosition = 1 then update everything to the server positions
+//   // do above when a player scores)
+// });
 
 function postChat() { // eslint-disable-line no-unused-vars
   // grab content of chat
@@ -108,23 +108,24 @@ function postChat() { // eslint-disable-line no-unused-vars
 }
 
 function joinGame() { // eslint-disable-line no-unused-vars
-  const joinGameInfo = {
+  const userInfo = {
     gameName: myRoom,
-    playerGuid: myGuid,
+    userGuid: myGuid,
+    username: myName,
   };
-  socket.emit('joinGame', joinGameInfo);
+  socket.emit('joinGame', userInfo);
   // send up join game with a guid. server will confirm by returning a failure,
   // or returning back your hash. if myHash = serverHash, then we good.
 }
 
 
-function pushPlayerPosition() {
-  // send up guid,player position,
-  // if ball is on your side of the court, then send up ball position too
-}
-function pushWinCondition() {
+// function pushPlayerPosition() {
+//   // send up guid,player position,
+//   // if ball is on your side of the court, then send up ball position too
+// }
+// function pushWinCondition() {
 
-}
+// }
 
 
 let engine;

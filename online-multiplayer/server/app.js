@@ -37,6 +37,89 @@ const hash = (guid) => {
   }
   return hashVal;
 };
+const createGameIfDoesNotExist = (gameName) => {
+  if (gameObjects[gameName] === [] || gameObjects[gameName] == null) {
+    gameObjects[gameName] = {
+      players: [],
+      inProgress: false,
+      ts: new Date().getTime(),
+    };
+  }
+};
+const addPlayerToGame = (userInfo, playerNum, gameName) => {
+  console.log('not implemented');
+  console.log(gameName);
+};
+const startGame = (userInfo, playerNum, gameName) => {
+  console.log('not implemented');
+  console.log(gameName);
+};
+const doWeHaveTwoActivePlayers = (gameName) => {
+  let doesPlayerOneExist = false;
+  let doesPlayerTwoExist = false;
+  console.log(gameObjects);
+
+  for (let x = 0; x < gameObjects[gameName].players.length; x += 1) {
+    if (gameObjects[gameName].players[x].playerNum === 1) {
+      doesPlayerOneExist = true;
+    }
+    if (gameObjects[gameName].players[x].playerNum === 2) {
+      doesPlayerTwoExist = true;
+    }
+  }
+  return (doesPlayerOneExist && doesPlayerTwoExist);
+};
+const tryAddPlayerToGame = (rawUserInfo, gameName) => {
+  const userInfo = {
+    username: rawUserInfo.username,
+    userHash: hash(rawUserInfo.userGuid),
+  };
+
+  let doesPlayerOneExist = false;
+  let doesPlayerTwoExist = false;
+
+  for (let x = 0; x < gameObjects[gameName].players.length; x += 1) {
+    if (gameObjects[gameName].players[x].playerNum === 1) {
+      doesPlayerOneExist = true;
+    }
+    if (gameObjects[gameName].players[x].playerNum === 2) {
+      doesPlayerTwoExist = true;
+    }
+  }
+  if (!doesPlayerOneExist) {
+    addPlayerToGame(userInfo, 1, gameName);
+  } else if (doesPlayerTwoExist) {
+    addPlayerToGame(userInfo, 2, gameName);
+  }
+
+  if (doWeHaveTwoActivePlayers(gameName)) {
+    startGame();
+  }
+};
+
+const pingServer = (rawUserInfo, gameName) => {
+  const userInfo = {
+    username: rawUserInfo.username,
+    userHash: hash(rawUserInfo.userGuid),
+    ts: new Date().getTime(),
+    playerNum: 0,
+    score: 0,
+  };
+  // if game doesn't exist, create
+  createGameIfDoesNotExist(gameName);
+  // if user not in game, add
+  let userInGame = false;
+
+  for (let x = 0; x < gameObjects[gameName].players.length; x += 1) {
+    if (gameObjects[gameName].players[x].userHash === userInfo.userHash) {
+      userInGame = true;
+      gameObjects[gameName].players[x].ts = new Date().getTime();
+    }
+  }
+  if (userInGame === false) {
+    gameObjects[gameName].players.push(userInfo);
+  }
+};
 io.on('connection', (socket) => {
   console.log('a user connected');
   // if game already exist, then add player to object and exit out
@@ -44,38 +127,12 @@ io.on('connection', (socket) => {
 
   // ping/createGame
   // joinGame
-  socket.on('joinGame', (joinGameInfo) => {
-    console.log('a user joined game:');
-    console.log(joinGameInfo);
-
-    const newPlayer = {
-      playerName: joinGameInfo.playerName,
-      playerHash: hash(joinGameInfo.playerGuid),
-      ts: new Date().getTime(),
-      score: 0,
-    };
-    // if no game exist for recieved gameroom, so create.
-    // if (gameObjects[joinGameInfo.gameName].players.length < 2) {
-    //   // game exist and there 0 or 1 players
-    //   // player 1 hash cannot = player 2 hash
-    //   if (!(gameObjects[joinGameInfo.gameName].players.length === 1 &&
-    //     newPlayer.playerHash === gameObjects[joinGameInfo.gameName].players[0].playerHash)) {
-    //     gameObjects[joinGameInfo.gameName].players.push(newPlayer);
-    //   } else {
-    //     console.log('same player joined 2 times');
-    //     console.log(gameObjects);
-    //   }
-    // }
-
-    if (gameObjects[joinGameInfo.gameName].players.length === 2) { // start game
-      gameObjects[joinGameInfo.gameName].inProgress = true;
-      console.log('GameStart');
-      console.log(gameObjects);
-      console.log(gameObjects[joinGameInfo.gameName].players);
-    }
-    // this.myTimer = setInterval(this.gameEngine.bind(this), this.gameUpdateTime);
-    console.log('5');
-    console.log(gameObjects[joinGameInfo.gameName].players.length);
+  socket.on('joinGame', (userInfo) => {
+    pingServer(userInfo, userInfo.gameName);
+    // count players in game, if < 2, then add user.
+    // if count was 1, then add player and start game, otherwise wait
+    // do nothing if count > 2
+    tryAddPlayerToGame(userInfo, userInfo.gameName);
   });
   socket.on('chat message', (msg) => {
     io.emit(`chat message${msg.roomName}`, msg);
@@ -84,63 +141,37 @@ io.on('connection', (socket) => {
     console.log('user disconnected');
   });
   socket.on('pingServer', (pingInfo) => {
-    const userInfo = {
-      username: pingInfo.username,
-      userHash: hash(pingInfo.userGuid),
-      ts: new Date().getTime(),
-      playerNum: 0,
-      score: 0,
-    };
-    // if game doesn't exist, create
-    if (gameObjects[pingInfo.gameName] === [] || gameObjects[pingInfo.gameName] == null) {
-      gameObjects[pingInfo.gameName] = {
-        players: [],
-        inProgress: false,
-        ts: new Date().getTime(),
-      };
-      // if user not in game, add
-      let userInGame = false;
-      gameObjects[pingInfo.gameName].players.forEach((player) => {
-        if (player.userHash === userInfo.userHash) {
-          userInGame = true;
-          gameObjects[pingInfo.gameName].players[userInfo.userHash].ts = new Date().getTime();
-        }
-      });
-      if (userInGame === false) {
-        gameObjects[pingInfo.gameName].players[userInfo.userHash] = userInfo;
-      }
-    }
-    console.log(gameObjects[pingInfo.gameName].players[userInfo.userHash]);
+    pingServer(pingInfo, pingInfo.gameName);
   });
 
-  const emitPlayerRefresh = (players) => {
-    io.emit('playerRefresh', players);
-  };
+  // const emitPlayerRefresh = (players) => {
+  //   io.emit('playerRefresh', players);
+  // };
 
+  // const gameEngine = () => {
+  //   this.frameCounter += 1;
+  //   this.checkGameOver();// check to see if players lost
+  //   // also end game if gametime exceeds 10 minutes incase player afk
 
-  const addPlayerToGame = () => {
-
-  };
-
-  const gameEngine = () => {
-    this.frameCounter += 1;
-    this.checkGameOver();// check to see if players lost
-    // also end game if gametime exceeds 10 minutes incase player afk
-
-    console.log();
-    if (this.frameCounter > 3000) { // if both players dead, or game time past 10 minutes, end timer
-      clearInterval(this.myTimer);
-    }
-  };
-  const checkGameOver = () => {
-    // if score hits score limit, end game, return true
-  };
-  const resetPosition = (playerNum) => {
-    // move players back to spawn, and tell clients ball angular velocity
-    // so that it's synced up on both clients
-  };
+  //   console.log();
+  // if both players dead, or game time past 10 minutes, end timer
+  //   if (this.frameCounter > 3000) {
+  //     clearInterval(this.myTimer);
+  //   }
+  // };
+  // const checkGameOver = () => {
+  //   // if score hits score limit, end game, return true
+  // };
+  // const resetPosition = (playerNum) => {
+  //   // move players back to spawn, and tell clients ball angular velocity
+  //   // so that it's synced up on both clients
+  // };
 });
 // socket methods
 // relay a gameItemObject, with player pos, ball pos/velocity, round num, scores
 // on client if roundnum != the server roundnum, then update round num, and ball pos,
 // otherwise, update ball pos if ball is not on their side of the court
+
+
+// parking lot
+// timer outside socket that clears inactive players
