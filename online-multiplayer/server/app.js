@@ -47,11 +47,15 @@ const createGameIfDoesNotExist = (gameName) => {
   }
 };
 const addPlayerToGame = (userInfo, playerNum, gameName) => {
-  console.log('not implemented');
-  console.log(gameName);
+  for (let x = 0; x < gameObjects[gameName].players.length; x += 1) {
+    if (gameObjects[gameName].players[x].userHash === userInfo.userHash) {
+      gameObjects[gameName].players[x].playerNum = playerNum;
+    }
+  }
+  console.log(gameObjects[gameName].players);
 };
 const startGame = (userInfo, playerNum, gameName) => {
-  console.log('not implemented');
+  console.log('not implemented2');
   console.log(gameName);
 };
 const doWeHaveTwoActivePlayers = (gameName) => {
@@ -88,7 +92,7 @@ const tryAddPlayerToGame = (rawUserInfo, gameName) => {
   }
   if (!doesPlayerOneExist) {
     addPlayerToGame(userInfo, 1, gameName);
-  } else if (doesPlayerTwoExist) {
+  } else if (!doesPlayerTwoExist) {
     addPlayerToGame(userInfo, 2, gameName);
   }
 
