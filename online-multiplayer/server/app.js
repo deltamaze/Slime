@@ -151,18 +151,20 @@ io.on('connection', (socket) => {
   // const emitPlayerRefresh = (players) => {
   //   io.emit('playerRefresh', players);
   // };
+  let myInterval;
+  const gameEngine = () => {
+    this.frameCounter += 1;
+    this.checkGameOver();// check to see if players lost
+    // also end game if gametime exceeds 10 minutes incase player afk
 
-  // const gameEngine = () => {
-  //   this.frameCounter += 1;
-  //   this.checkGameOver();// check to see if players lost
-  //   // also end game if gametime exceeds 10 minutes incase player afk
+    //   console.log();
+    // if both players dead, or game time past 10 minutes, end timer
+    if (this.frameCounter > 3000) {
+      clearInterval(myInterval);
+    }
+  };
+  myInterval = setInterval(gameEngine, 3000);
 
-  //   console.log();
-  // if both players dead, or game time past 10 minutes, end timer
-  //   if (this.frameCounter > 3000) {
-  //     clearInterval(this.myTimer);
-  //   }
-  // };
   // const checkGameOver = () => {
   //   // if score hits score limit, end game, return true
   // };
@@ -171,10 +173,6 @@ io.on('connection', (socket) => {
   //   // so that it's synced up on both clients
   // };
 });
-// socket methods
-// relay a gameItemObject, with player pos, ball pos/velocity, round num, scores
-// on client if roundnum != the server roundnum, then update round num, and ball pos,
-// otherwise, update ball pos if ball is not on their side of the court
 
 
 // parking lot
