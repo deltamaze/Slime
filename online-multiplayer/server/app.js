@@ -6,6 +6,7 @@ const app = require('express')();
 const http = require('http').Server(app);
 
 const gameObjects = [];// the static game objects which all threads will access
+let isGameEngineRunning = false;
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
@@ -152,7 +153,9 @@ io.on('connection', (socket) => {
   //   io.emit('playerRefresh', players);
   // };
   let myInterval;
+
   const gameEngine = () => {
+    isGameEngineRunning = true;
     this.frameCounter += 1;
     this.checkGameOver();// check to see if players lost
     // also end game if gametime exceeds 10 minutes incase player afk
@@ -161,9 +164,12 @@ io.on('connection', (socket) => {
     // if both players dead, or game time past 10 minutes, end timer
     if (this.frameCounter > 3000) {
       clearInterval(myInterval);
+      isGameEngineRunning = false;
     }
   };
-  myInterval = setInterval(gameEngine, 3000);
+  if (!isGameEngineRunning) {
+    myInterval = setInterval(gameEngine, 3000);
+  }
 
   // const checkGameOver = () => {
   //   // if score hits score limit, end game, return true
