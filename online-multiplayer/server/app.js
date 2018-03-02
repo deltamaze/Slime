@@ -38,43 +38,61 @@ const hash = (guid) => {
   }
   return hashVal;
 };
+const lookUpGameIdByName = (gameName) => {
+  let returnId = -1;
+  for (i = 0; i < gameObjects.length; i += 1) {
+    if(gameObjects[i].roomName === gameName)
+    {
+      returnId = i
+    }
+  }
+  if (returnId === -1)
+  {
+    returnId = createGameIfDoesNotExist(gameName);
+  }
+  return returnId;
+};
 const createGameIfDoesNotExist = (gameName) => {
-  if (gameObjects[gameName] === [] || gameObjects[gameName] == null) {
-    gameObjects[gameName] = {
+  
+
+    const newGame = {
+      roomName:gameName,
       players: [],
       inProgress: false,
       ts: new Date().getTime(),
     };
-  }
+    gameObjects.push(newGame);
+    return gameObjects.length -1;
 };
-const addPlayerToGame = (userInfo, playerNum, gameName) => {
-  for (let x = 0; x < gameObjects[gameName].players.length; x += 1) {
-    if (gameObjects[gameName].players[x].userHash === userInfo.userHash) {
-      gameObjects[gameName].players[x].playerNum = playerNum;
+const addPlayerToGame = (userInfo, playerNum, gameId) => {
+  for (let x = 0; x < gameObjects[gameId].players.length; x += 1) {
+    if (gameObjects[gameId].players[x].userHash === userInfo.userHash) {
+      gameObjects[gameId].players[x].playerNum = playerNum;
     }
   }
-  console.log(gameObjects[gameName].players);
+  console.log(gameObjects[gameId].players);
 };
-const startGame = (userInfo, playerNum, gameName) => {
+const startGame = (userInfo, playerNum, gameId) => {
   console.log('not implemented2');
-  console.log(gameName);
+  console.log(gameId);
 };
-const doWeHaveTwoActivePlayers = (gameName) => {
+const doWeHaveTwoActivePlayers = (gameId) => {
   let doesPlayerOneExist = false;
   let doesPlayerTwoExist = false;
   console.log(gameObjects);
 
-  for (let x = 0; x < gameObjects[gameName].players.length; x += 1) {
-    if (gameObjects[gameName].players[x].playerNum === 1) {
+  for (let x = 0; x < gameObjects[gameId].players.length; x += 1) {
+    if (gameObjects[gameId].players[x].playerNum === 1) {
       doesPlayerOneExist = true;
     }
-    if (gameObjects[gameName].players[x].playerNum === 2) {
+    if (gameObjects[gameId].players[x].playerNum === 2) {
       doesPlayerTwoExist = true;
     }
   }
   return (doesPlayerOneExist && doesPlayerTwoExist);
 };
 const tryAddPlayerToGame = (rawUserInfo, gameName) => {
+  const gameId = lookUpGameIdByName(gameName);
   const userInfo = {
     username: rawUserInfo.username,
     userHash: hash(rawUserInfo.userGuid),
@@ -83,21 +101,21 @@ const tryAddPlayerToGame = (rawUserInfo, gameName) => {
   let doesPlayerOneExist = false;
   let doesPlayerTwoExist = false;
 
-  for (let x = 0; x < gameObjects[gameName].players.length; x += 1) {
-    if (gameObjects[gameName].players[x].playerNum === 1) {
+  for (let x = 0; x < gameObjects[gameId].players.length; x += 1) {
+    if (gameObjects[gameId].players[x].playerNum === 1) {
       doesPlayerOneExist = true;
     }
-    if (gameObjects[gameName].players[x].playerNum === 2) {
+    if (gameObjects[gameId].players[x].playerNum === 2) {
       doesPlayerTwoExist = true;
     }
   }
   if (!doesPlayerOneExist) {
-    addPlayerToGame(userInfo, 1, gameName);
+    addPlayerToGame(userInfo, 1, gameId);
   } else if (!doesPlayerTwoExist) {
-    addPlayerToGame(userInfo, 2, gameName);
+    addPlayerToGame(userInfo, 2, gameId);
   }
 
-  if (doWeHaveTwoActivePlayers(gameName)) {
+  if (doWeHaveTwoActivePlayers(gameId)) {
     startGame();
   }
 };
@@ -111,18 +129,18 @@ const pingServer = (rawUserInfo, gameName) => {
     score: 0,
   };
   // if game doesn't exist, create
-  createGameIfDoesNotExist(gameName);
+  const gameId = lookUpGameIdByName(gameName);
   // if user not in game, add
   let userInGame = false;
 
-  for (let x = 0; x < gameObjects[gameName].players.length; x += 1) {
-    if (gameObjects[gameName].players[x].userHash === userInfo.userHash) {
+  for (let x = 0; x < gameObjects[gameId].players.length; x += 1) {
+    if (gameObjects[gameId].players[x].userHash === userInfo.userHash) {
       userInGame = true;
-      gameObjects[gameName].players[x].ts = new Date().getTime();
+      gameObjects[gameId].players[x].ts = new Date().getTime();
     }
   }
   if (userInGame === false) {
-    gameObjects[gameName].players.push(userInfo);
+    gameObjects[gameId].players.push(userInfo);
   }
 };
 io.on('connection', (socket) => {
