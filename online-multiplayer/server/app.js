@@ -5,7 +5,7 @@
 const app = require('express')();
 const http = require('http').Server(app);
 
-const gameObjects = [];// the static game objects which all threads will access
+let gameObjects = [];// the static game objects which all threads will access
 let isGameEngineRunning = false;
 
 app.use((req, res, next) => {
@@ -127,16 +127,9 @@ const pingServer = (rawUserInfo, gameName) => {
 };
 io.on('connection', (socket) => {
   console.log('a user connected');
-  // if game already exist, then add player to object and exit out
-  // if game is new, start timer and create game
 
-  // ping/createGame
-  // joinGame
   socket.on('joinGame', (userInfo) => {
     pingServer(userInfo, userInfo.gameName);
-    // count players in game, if < 2, then add user.
-    // if count was 1, then add player and start game, otherwise wait
-    // do nothing if count > 2
     tryAddPlayerToGame(userInfo, userInfo.gameName);
   });
   socket.on('chat message', (msg) => {
@@ -153,17 +146,16 @@ io.on('connection', (socket) => {
   //   io.emit('playerRefresh', players);
   // };
   let myInterval;
-
   const gameEngine = () => {
     isGameEngineRunning = true;
-    this.frameCounter += 1;
-    this.checkGameOver();// check to see if players lost
-    // also end game if gametime exceeds 10 minutes incase player afk
+    const lastActivity = new Date(0).getTime(); // find out last player activity across all games
+    // loop through all game rooms
+    // for (let x = 0; x < gameObjects.length; x += 1) {
 
-    //   console.log();
-    // if both players dead, or game time past 10 minutes, end timer
-    if (this.frameCounter > 3000) {
+    // }
+    if (lastActivity < new Date().getTime() * 1000 * 60) {
       clearInterval(myInterval);
+      gameObjects = [];
       isGameEngineRunning = false;
     }
   };
