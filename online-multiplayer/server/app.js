@@ -161,17 +161,28 @@ io.on('connection', (socket) => {
   //   io.emit('playerRefresh', players);
   // };
   let myInterval;
+  let engineIterationCount = 0;
   const gameEngine = () => {
+    engineIterationCount += 1;
     isGameEngineRunning = true;
-    const lastActivity = new Date(0).getTime(); // find out last player activity across all games
+    let lastActivity = new Date(0).getTime(); // find out last player activity across all games
     // loop through all game rooms
-    // for (let x = 0; x < gameObjects.length; x += 1) {
-
-    // }
+    for (let x = 0; x < gameObjects.length; x += 1) {
+      // find last player activity4
+      for (let y = 0; y < gameObjects[x].players.length; y += 1) {
+        if (gameObjects[x].players[y].ts > lastActivity) {
+          lastActivity = gameObjects[x].players[y].ts;
+        }
+      }
+      if (gameObjects[x].inProgress === true || engineIterationCount % 30 === 0) {
+        io.emit(`gameRefresh${gameObjects[x].roomName}`, gameObjects[x]);
+      }
+    }
     if (lastActivity < new Date().getTime() * 1000 * 60) {
       clearInterval(myInterval);
       gameObjects = [];
       isGameEngineRunning = false;
+      engineIterationCount = 0;
     }
   };
   if (!isGameEngineRunning) {
