@@ -1,0 +1,19 @@
+{
+  "name": "slime",
+  "version": "1.0.0",
+  "description": "slimeVolleyballP5MatterJSProject",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deltamaze/Slime.git"
+  },
+  "author": "William Pooley",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/deltamaze/Slime/issues"
+  },
+  "homepage": "https://github.com/deltamaze/Slime#readme"
+}

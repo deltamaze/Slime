@@ -38,31 +38,28 @@ const hash = (guid) => {
   }
   return hashVal;
 };
+
+const createGameIfDoesNotExist = (gameName) => {
+  const newGame = {
+    roomName: gameName,
+    players: [],
+    inProgress: false,
+    ts: new Date().getTime(),
+  };
+  gameObjects.push(newGame);
+  return gameObjects.length - 1;
+};
 const lookUpGameIdByName = (gameName) => {
   let returnId = -1;
-  for (i = 0; i < gameObjects.length; i += 1) {
-    if(gameObjects[i].roomName === gameName)
-    {
-      returnId = i
+  for (let i = 0; i < gameObjects.length; i += 1) {
+    if (gameObjects[i].roomName === gameName) {
+      returnId = i;
     }
   }
-  if (returnId === -1)
-  {
+  if (returnId === -1) {
     returnId = createGameIfDoesNotExist(gameName);
   }
   return returnId;
-};
-const createGameIfDoesNotExist = (gameName) => {
-  
-
-    const newGame = {
-      roomName:gameName,
-      players: [],
-      inProgress: false,
-      ts: new Date().getTime(),
-    };
-    gameObjects.push(newGame);
-    return gameObjects.length -1;
 };
 const addPlayerToGame = (userInfo, playerNum, gameId) => {
   for (let x = 0; x < gameObjects[gameId].players.length; x += 1) {
