@@ -25,7 +25,11 @@ function guid() {
 //   return returnHash;
 // }
 
-
+var xhttp = new XMLHttpRequest();
+    xhttp.open("GET", "http://localhost:8080/test/", true);
+    xhttp.setRequestHeader("Content-type", "application/json");
+    xhttp.send();
+console.log(xhttp.responseText);
 const myGuid = guid();
 // const myHash = hash(myGuid);
 let myName = 'SlimePlayer';
@@ -43,9 +47,23 @@ function setRoomListeners() {
   socket.on((`chat message${myRoom}`), (msg) => {
     addLiToChatUl(`${msg.playerName}:${msg.message}`);
   });
+  socket.on((`gameRefresh${myRoom}`), (gameObj) => {
+    // determine if you are currently player 1 or 2, otherwise you are spectator
+    // update ball position and enemy player position.
+    // if ball is in your side of court, don't update position
+    // if ForceResetPosition = 1 then update everything to the server positions
+    // do above when a player scores)
+    console.log(gameObj);
+  });
+  socket.on((`resetPosition${myRoom}`), () => {
+    resetPlayers();
+    resetBall();
+  });
 }
 function clearRoomListeners() {
   socket.removeAllListeners(`chat message${myRoom}`);
+  socket.removeAllListeners(`gameRefresh${myRoom}`);
+  socket.removeAllListeners(`resetPosition${myRoom}`);
 }
 setRoomListeners();
 
@@ -76,22 +94,6 @@ function pingServer() {
 }
 
 setInterval(pingServer, 3000);
-
-
-// function updatePositions() {
-//   // check gameobject to see if you are a player and game is in progress
-//   // if so, push position
-// }
-
-// setInterval(updatePositions, 500);
-
-// socket.on((`updatePositions${myRoom}`), (gameObj) => {
-//   // determine if you are currently player 1 or 2, otherwise you are spectator
-//   // update ball position and enemy player position.
-//   // if ball is in your side of court, don't update position
-//   // if ForceResetPosition = 1 then update everything to the server positions
-//   // do above when a player scores)
-// });
 
 function postChat() { // eslint-disable-line no-unused-vars
   // grab content of chat
@@ -148,6 +150,12 @@ function resetBall() {
   Matter.Body.setVelocity(ball.body, { x: 20 * (Math.random() - 0.5), y: -5 * Math.random() });
   player1.hitCount = 0;
   player2.hitCount = 0;
+}
+// player1 = new Player(engine.world, 40, 150, 200, 1);
+// player2 = new Player(engine.world, 40, canvasWidth - 150, 200, 2);
+function resetPlayers() {
+  Matter.Body.setPosition(player1.body, { x: 150, y: 200 });
+  Matter.Body.setPosition(player2.body, { x: canvasWidth - 150, y: 200 });
 }
 function collision(event) {
   if (event.pairs[0].bodyA.label === 'ball' || event.pairs[0].bodyB.label === 'ball') {
@@ -288,3 +296,7 @@ function draw() { // eslint-disable-line no-unused-vars
   if (keyIsDown(83)) { // d
   }
 }
+
+
+
+// parking lot

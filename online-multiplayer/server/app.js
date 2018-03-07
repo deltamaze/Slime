@@ -10,17 +10,17 @@ let isGameEngineRunning = false;
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.header('Access-Control-Allow-Header', 'Origin, X-Requested-With, Content-Type, Accept');
+  console.log('test2');
   next();
 });
 console.log('Server Started');
-// app.get('/GetActiveSlimeGames/', (req, res) => {
-//   gameService = new GameService();
-//   gameService.playerJoinGame(req.params.roomName);
-//   res.send(`<h1>${req.params.roomName}</h1>`);
-// });
+app.get('/test/', (req, res) => {
+  res.send('Hello World!');
+});
 
 const PORT = process.env.PORT || 8080;
+console.log(PORT);
 http.listen(PORT, () => {
 });
 
@@ -168,14 +168,16 @@ io.on('connection', (socket) => {
     let lastActivity = new Date(0).getTime(); // find out last player activity across all games
     // loop through all game rooms
     for (let x = 0; x < gameObjects.length; x += 1) {
-      // find last player activity4
+      // find last player activity
       for (let y = 0; y < gameObjects[x].players.length; y += 1) {
         if (gameObjects[x].players[y].ts > lastActivity) {
           lastActivity = gameObjects[x].players[y].ts;
         }
       }
+      // if game in progress emit each .1 second
+      // if not in progress emit each 3 seconds
       if (gameObjects[x].inProgress === true || engineIterationCount % 30 === 0) {
-        io.emit(`gameRefresh${gameObjects[x].roomName}`, gameObjects[x]);
+        //io.emit(`gameRefresh${gameObjects[x].roomName}`, gameObjects[x]);
       }
     }
     if (lastActivity < new Date().getTime() * 1000 * 60) {
@@ -186,18 +188,12 @@ io.on('connection', (socket) => {
     }
   };
   if (!isGameEngineRunning) {
-    myInterval = setInterval(gameEngine, 3000);
+    myInterval = setInterval(gameEngine, 100);
   }
-
-  // const checkGameOver = () => {
-  //   // if score hits score limit, end game, return true
-  // };
-  // const resetPosition = (playerNum) => {
-  //   // move players back to spawn, and tell clients ball angular velocity
-  //   // so that it's synced up on both clients
-  // };
 });
 
 
 // parking lot
 // timer outside socket that clears inactive players
+// reset position
+// end game if it goes on too long
