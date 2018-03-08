@@ -8,7 +8,6 @@ class Player extends GameBody { // eslint-disable-line no-unused-vars
     let colorGreen = 100; // eslint-disable-line prefer-const
     let colorRed = 0; // eslint-disable-line prefer-const
     let ticksOfUpwardThrust = 0; // eslint-disable-line
-
     const options = {
       label: `player${playerId.toString()}`,
       circleRadius: radius,
@@ -56,5 +55,7 @@ class Player extends GameBody { // eslint-disable-line no-unused-vars
     this.hitCount = 0;
     this.lastHit = 0;
     this.score = 0;
+    this.username = '';
+    this.userHash = '';
   }
 }

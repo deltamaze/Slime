@@ -35,26 +35,25 @@
   <div id="bodyContainer" style="padding-left: 20px; width: 900px">
     <!-- Example row of columns -->
 
-    <div class="row" style="height:20px">
-      <p>Current Username:</p><p id="displayUsername">SlimePlayer</p>
+    <div class="row" style="height:30px">
+      <p>Current Username:</p><strong id="displayUsername">SlimePlayer</strong>
+      <input type="button" value="Change" class="btn btn-sm btn-primary" onclick="setSettingVisibility('username','visible');"><span id="updateUsernameSpan"style="visibility: hidden;">
+      <input type="text" id="usernameInput" maxlength="50" placeholder="change username" name="usernameInput">
+      <input type="button" value="Save" class="btn btn-sm btn-success" onclick="updateSettings('username');">
+      <input type="button" value="Cancel" class="btn btn-sm btn-danger" onclick="setSettingVisibility('username','hidden');">
+    </span>
     </div>
-    <div class="row" style="height:20px">
-      <p>Current Room:</p><p id="displayRoom">Main</p>
+    <div class="row" style="height:30px">
+      <p>Current Room:</p><strong id="displayRoom">Main</strong>
+      <input type="button" value="Change" class="btn btn-sm btn-primary" onclick="setSettingVisibility('room','visible');"><span id="updateRoomSpan"style="visibility: hidden;">
+        <input type="text" id="roomInput" maxlength="50" placeholder="change game rooms" name="roomInput">
+        <input type="button" value="Save" class="btn btn-sm btn-success" onclick="updateSettings('room');">
+        <input type="button" value="Cancel" class="btn btn-sm btn-danger" onclick="setSettingVisibility('room','hidden');">
+      </span>
     </div>
     <div class="row" style="height:20px">
       <p>Controls: WASD</p>
     </div>
-    <form onsubmit="event.preventDefault();updateSettings();return false">
-      <div class="row">
-          <input type="text" id="usernameInput" maxlength="50" placeholder="change username" name="usernameInput" required="">
-      </div>
-      <div class="row">
-          <input type="text" id="roomInput" maxlength="50" placeholder="change game rooms" name="roomInput" required="">
-      </div>
-      <div class="row">
-          <input type="submit" value="Update" class="btn btn-default" type="submit">
-      </div>
-    </form>
     <div class="row"  style="padding-left: 10px">
       <button id="buttonP1" type="button" class="btn btn-primary" onclick="joinGame();">Join Game</button>
     </div>

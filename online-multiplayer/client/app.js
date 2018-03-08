@@ -1,5 +1,5 @@
 /* global Player document Boundry Ball Matter keyIsDown textSize
-noStroke background fill text io createCanvas */
+noStroke background fill text $ io createCanvas */
 
 
 function guid() {
@@ -12,24 +12,30 @@ function guid() {
   // return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
   //   s4() + '-' + s4() + s4() + s4();
 }
-// function hash(targetString) {
-//   let returnHash = 0;
-//   let i;
-//   let chr;
-//   if (targetString.length === 0) return returnHash;
-//   for (i = 0; i < targetString.length; i += 1) {
-//     chr = targetString.charCodeAt(i);
-//     returnHash = ((returnHash << 5) - returnHash) + chr; // eslint-disable-line no-bitwise
-//     returnHash |= 0; // eslint-disable-line no-bitwise
-//   }
-//   return returnHash;
-// }
+function hash(targetString) {
+  let returnHash = 0;
+  let i;
+  let chr;
+  if (targetString.length === 0) return returnHash;
+  for (i = 0; i < targetString.length; i += 1) {
+    chr = targetString.charCodeAt(i);
+    returnHash = ((returnHash << 5) - returnHash) + chr; // eslint-disable-line no-bitwise
+    returnHash |= 0; // eslint-disable-line no-bitwise
+  }
+  return returnHash;
+}
 
 
 const myGuid = guid();
-// const myHash = hash(myGuid);
-let myName = 'SlimePlayer';
+const myHash = hash(myGuid);
+let myName = `Player${(Math.floor(Math.random() * 10000)).toString()}`;
 let myRoom = 'Main';
+let serverGameObject = {
+  roomName: '',
+  players: [],
+  inProgress: false,
+  ts: new Date().getTime(),
+};
 
 // show current name/room in html
 const socket = io('http://localhost:8080');
@@ -44,6 +50,7 @@ function updateDisplaySettings() {
   document.getElementById('displayUsername').innerHTML = myName;
   document.getElementById('displayRoom').innerHTML = myRoom;
 }
+$(document).ready(() => { updateDisplaySettings(); });
 
 
 socket.on('connect', conn => conn);
@@ -127,7 +134,7 @@ function collision(event) {
         player1.hitCount += 1;
         player1.lastHit = Date.now();
         if (player1.hitCount > 3) {
-          player2.score += 1;
+          // player2.score += 1;
           resetBall();
         }
       }
@@ -138,7 +145,7 @@ function collision(event) {
         player2.hitCount += 1;
         player2.lastHit = Date.now();
         if (player2.hitCount > 3) {
-          player1.score += 1;
+          // player1.score += 1;
           resetBall();
         }
       }
@@ -149,11 +156,11 @@ function collision(event) {
 
   if (event.pairs[0].bodyA.label === 'ball' || event.pairs[0].bodyB.label === 'ball') {
     if (event.pairs[0].bodyA.label === 'p1Floor' || event.pairs[0].bodyB.label === 'p1Floor') {
-      player2.score += 1;
+      // player2.score += 1;
       resetBall();
     }
     if (event.pairs[0].bodyA.label === 'p2Floor' || event.pairs[0].bodyB.label === 'p2Floor') {
-      player1.score += 1;
+      // player1.score += 1;
       resetBall();
     }
   }
@@ -192,6 +199,8 @@ function setup() { // eslint-disable-line no-unused-vars
 }
 
 function displayGameText() {
+  const p1UsernameText = `P1: ${player1.username}`;
+  const p2UsernameText = `P2: ${player2.username}`;
   const p1ScoreText = `Score: ${player1.score.toString()}`;
   const p2ScoreText = `Score: ${player2.score.toString()}`;
   const p1HitCountText = `Hits: ${player1.hitCount.toString()}/3`;
@@ -199,23 +208,39 @@ function displayGameText() {
   const p1TextXPos = (canvasWidth / 2) - (canvasWidth / 3);
   const p2TextXPos = (canvasWidth / 2) + (canvasWidth / 6);
   // p1
-  textSize(32);
+  textSize(26);
   noStroke();
   fill(0, 100, 255);
-  text(p1ScoreText, p1TextXPos, 100); // Text wraps within text box
-  textSize(24);
+  text(p1UsernameText, p1TextXPos, 70);
+  textSize(26);
   noStroke();
   fill(0, 100, 255);
-  text(p1HitCountText, p1TextXPos, 150); // Text wraps within text box
+  text(p1ScoreText, p1TextXPos, 90);
+  textSize(26);
+  noStroke();
+  fill(0, 100, 255);
+  text(p1HitCountText, p1TextXPos, 110);
   // p2
-  textSize(32);
+  textSize(26);
   noStroke();
   fill(255, 100, 0);
-  text(p2ScoreText, p2TextXPos, 100); // Text wraps within text box
-  textSize(24);
+  text(p2UsernameText, p2TextXPos, 70);
+
+  textSize(26);
   noStroke();
   fill(255, 100, 0);
-  text(p2HitCountText, p2TextXPos, 150); // Text wraps within text box
+  text(p2ScoreText, p2TextXPos, 90);
+  textSize(26);
+  noStroke();
+  fill(255, 100, 0);
+  text(p2HitCountText, p2TextXPos, 110);
+  // isGameInProgressText
+  if (!serverGameObject.inProgress) {
+    textSize(26);
+    noStroke();
+    fill(255, 255, 0);
+    text('Waiting for 2 players to join.', (canvasWidth / 2) - (canvasWidth / 5), 200);
+  }
 }
 function ApplyUpTick(player) {
   if (player.body.position.y >= playerGroundedYPos) {
@@ -244,17 +269,31 @@ function draw() { // eslint-disable-line no-unused-vars
   }, this);
 
   // PLAYER INPUT
+
   if (keyIsDown(87)) { // w
-    ApplyUpTick(player1);
+    if (myHash === player1.userHash) {
+      ApplyUpTick(player1);
+    }
+    if (myHash === player2.userHash) {
+      ApplyUpTick(player2);
+    }
   }
   if (keyIsDown(68)) { // a
-    ApplyVertMovement(player1, 1);
+    if (myHash === player1.userHash) {
+      ApplyVertMovement(player1, 1);
+    }
+    if (myHash === player2.userHash) {
+      ApplyVertMovement(player2, 1);
+    }
   }
   if (keyIsDown(65)) { // d
-    ApplyVertMovement(player1, -1);
+    if (myHash === player1.userHash) {
+      ApplyVertMovement(player1, -1);
+    }
+    if (myHash === player2.userHash) {
+      ApplyVertMovement(player2, -1);
+    }
   }
-
-
   // debug key, S
   if (keyIsDown(83)) { // d
   }
@@ -265,12 +304,30 @@ function setRoomListeners() {
     addLiToChatUl(`${msg.playerName}:${msg.message}`);
   });
   socket.on((`gameRefresh${myRoom}`), (gameObj) => {
-    // determine if you are currently player 1 or 2, otherwise you are spectator
-    // update ball position and enemy player position.
-    // if ball is in your side of court, don't update position
-    // if ForceResetPosition = 1 then update everything to the server positions
-    // do above when a player scores)
-    console.log(gameObj);
+    serverGameObject = gameObj;
+    // get p1 and p2 info
+    let p1Updated = false;
+    let p2Updated = false;
+    for (let x = 0; x < gameObj.players.length; x += 1) {
+      if (gameObj.players[x].playerNum === 1) {
+        player1.username = gameObj.players[x].username;
+        player1.userHash = gameObj.players[x].userHash;
+        p1Updated = true;
+      }
+      if (gameObj.players[x].playerNum === 2) {
+        player2.username = gameObj.players[x].username;
+        player2.userHash = gameObj.players[x].userHash;
+        p2Updated = true;
+      }
+    }
+    if (!p1Updated) {
+      player1.username = '';
+      player1.userHash = '';
+    }
+    if (!p2Updated) {
+      player2.username = '';
+      player2.userHash = '';
+    }
   });
   socket.on((`resetPosition${myRoom}`), () => {
     resetPlayers();
@@ -282,15 +339,37 @@ function clearRoomListeners() {
   socket.removeAllListeners(`gameRefresh${myRoom}`);
   socket.removeAllListeners(`resetPosition${myRoom}`);
 }
-function updateSettings() { // eslint-disable-line no-unused-vars
+function setSettingVisibility(targetField, visibility) {
+  if (targetField === 'username') {
+    document.getElementById('updateUsernameSpan').style.visibility = visibility;
+    document.getElementById('usernameInput').value = '';
+  } else if (targetField === 'room') {
+    document.getElementById('updateRoomSpan').style.visibility = visibility;
+    document.getElementById('roomInput').value = '';
+  }
+}
+function updateSettings(targetField) { // eslint-disable-line no-unused-vars
   clearRoomListeners();
-  myName = document.getElementById('usernameInput').value;
-  myRoom = document.getElementById('roomInput').value;
-  // clear text fields
-  document.getElementById('usernameInput').value = '';
-  document.getElementById('roomInput').value = '';
+  if (targetField === 'username') {
+    myName = document.getElementById('usernameInput').value;
+  } else if (targetField === 'room') {
+    myRoom = document.getElementById('roomInput').value;
+  }
   updateDisplaySettings();
+  setSettingVisibility(targetField, 'hidden');
   setRoomListeners();
 }
 setRoomListeners();
 // parking lot
+// remove ability for player to be p1 & p2
+// when server pushes reset ball, change ball from static to unstatic
+// force update player ball position after score /game start
+// otherweise only update ball position if it is greater than certain dist, and not on your side
+// either player can report score
+// server needs to push the ball start position (angle/position/velocity)down to client
+// update ui to use hidden textbox & hidden save & hidden cancel btn next to name/gameroom,
+// cont: have update button that will reveal hidden controls
+// emit client data to server when game in progress
+// emit player position
+// emit ball posiiton if in your half of court
+// if server is not reporting a player1/player2 then clear values
