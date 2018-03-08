@@ -11,7 +11,6 @@ let isGameEngineRunning = false;
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Header', 'Origin, X-Requested-With, Content-Type, Accept');
-  console.log('test2');
   next();
 });
 console.log('Server Started');
@@ -20,7 +19,6 @@ app.get('/test/', (req, res) => {
 });
 
 const PORT = process.env.PORT || 8080;
-console.log(PORT);
 http.listen(PORT, () => {
 });
 
@@ -67,16 +65,14 @@ const addPlayerToGame = (userInfo, playerNum, gameId) => {
       gameObjects[gameId].players[x].playerNum = playerNum;
     }
   }
-  console.log(gameObjects[gameId].players);
 };
-const startGame = (userInfo, playerNum, gameId) => {
+const startGame = (gameId) => {
   console.log('not implemented2');
   console.log(gameId);
 };
 const doWeHaveTwoActivePlayers = (gameId) => {
   let doesPlayerOneExist = false;
   let doesPlayerTwoExist = false;
-  console.log(gameObjects);
 
   for (let x = 0; x < gameObjects[gameId].players.length; x += 1) {
     if (gameObjects[gameId].players[x].playerNum === 1) {
@@ -99,6 +95,11 @@ const tryAddPlayerToGame = (rawUserInfo, gameName) => {
   let doesPlayerTwoExist = false;
 
   for (let x = 0; x < gameObjects[gameId].players.length; x += 1) {
+    // if player is already active, return
+    if (gameObjects[gameId].players[x].playerNum > 0 &&
+      gameObjects[gameId].players[x].userHash === userInfo.userHash) {
+      return;
+    }
     if (gameObjects[gameId].players[x].playerNum === 1) {
       doesPlayerOneExist = true;
     }
@@ -113,7 +114,7 @@ const tryAddPlayerToGame = (rawUserInfo, gameName) => {
   }
 
   if (doWeHaveTwoActivePlayers(gameId)) {
-    startGame();
+    startGame(gameId);
   }
 };
 
@@ -173,14 +174,20 @@ io.on('connection', (socket) => {
         if (gameObjects[x].players[y].ts > lastActivity) {
           lastActivity = gameObjects[x].players[y].ts;
         }
+        if (gameObjects[x].players[y].playerNum > 0 &&
+          gameObjects[x].players[y].ts < new Date().getTime() - (1000 * 15)) { // inactive 15 sec
+          const msg = { playerName: 'SERVER', message: `${gameObjects[x].players[y].username} removed for being inactive` };
+          io.emit(`chat message${gameObjects[x].roomName}`, msg);
+          gameObjects[x].players[y].playerNum = 0; // remove as an active player
+        }
       }
       // if game in progress emit each .1 second
       // if not in progress emit each 3 seconds
       if (gameObjects[x].inProgress === true || engineIterationCount % 30 === 0) {
-        //io.emit(`gameRefresh${gameObjects[x].roomName}`, gameObjects[x]);
+        io.emit(`gameRefresh${gameObjects[x].roomName}`, gameObjects[x]);
       }
     }
-    if (lastActivity < new Date().getTime() * 1000 * 60) {
+    if (lastActivity < new Date().getTime() - (1000 * 15)) {
       clearInterval(myInterval);
       gameObjects = [];
       isGameEngineRunning = false;
@@ -194,6 +201,12 @@ io.on('connection', (socket) => {
 
 
 // parking lot
-// timer outside socket that clears inactive players
+// server needs to push the ball start position (angle/position/velocity)down to client
+// server change game status to true.
+// take in player data and update game object
 // reset position
+// either player can report score
+// sanitize incoming data
 // end game if it goes on too long
+// if game in progress, and only 1 player detected,
+// cont: end game with msg stating other player disconnected
