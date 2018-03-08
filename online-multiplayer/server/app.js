@@ -151,6 +151,13 @@ io.on('connection', (socket) => {
   socket.on('chat message', (msg) => {
     io.emit(`chat message${msg.roomName}`, msg);
   });
+  const resetClientPositions = (gameName) => {
+    const ballVelocity = { x: 20 * (Math.random() - 0.5), y: -5 * Math.random() };
+    io.emit(`resetPosition${gameName}`, ballVelocity);
+  };
+  socket.on('updateScore', (scoreInfo) => {
+    resetClientPositions(scoreInfo.gameName);
+  });
   socket.on('disconnect', () => {
     console.log('user disconnected');
   });
