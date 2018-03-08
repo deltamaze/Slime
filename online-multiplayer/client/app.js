@@ -25,11 +25,7 @@ function guid() {
 //   return returnHash;
 // }
 
-var xhttp = new XMLHttpRequest();
-    xhttp.open("GET", "http://localhost:8080/test/", true);
-    xhttp.setRequestHeader("Content-type", "application/json");
-    xhttp.send();
-console.log(xhttp.responseText);
+
 const myGuid = guid();
 // const myHash = hash(myGuid);
 let myName = 'SlimePlayer';
@@ -43,45 +39,12 @@ function addLiToChatUl(msg) {
   li.innerHTML = msg;
   ul.prepend(li);
 }
-function setRoomListeners() {
-  socket.on((`chat message${myRoom}`), (msg) => {
-    addLiToChatUl(`${msg.playerName}:${msg.message}`);
-  });
-  socket.on((`gameRefresh${myRoom}`), (gameObj) => {
-    // determine if you are currently player 1 or 2, otherwise you are spectator
-    // update ball position and enemy player position.
-    // if ball is in your side of court, don't update position
-    // if ForceResetPosition = 1 then update everything to the server positions
-    // do above when a player scores)
-    console.log(gameObj);
-  });
-  socket.on((`resetPosition${myRoom}`), () => {
-    resetPlayers();
-    resetBall();
-  });
-}
-function clearRoomListeners() {
-  socket.removeAllListeners(`chat message${myRoom}`);
-  socket.removeAllListeners(`gameRefresh${myRoom}`);
-  socket.removeAllListeners(`resetPosition${myRoom}`);
-}
-setRoomListeners();
-
 
 function updateDisplaySettings() {
   document.getElementById('displayUsername').innerHTML = myName;
   document.getElementById('displayRoom').innerHTML = myRoom;
 }
-function updateSettings() { // eslint-disable-line no-unused-vars
-  clearRoomListeners();
-  myName = document.getElementById('usernameInput').value;
-  myRoom = document.getElementById('roomInput').value;
-  // clear text fields
-  document.getElementById('usernameInput').value = '';
-  document.getElementById('roomInput').value = '';
-  updateDisplaySettings();
-  setRoomListeners();
-}
+
 
 socket.on('connect', conn => conn);
 function pingServer() {
@@ -297,6 +260,37 @@ function draw() { // eslint-disable-line no-unused-vars
   }
 }
 
-
-
+function setRoomListeners() {
+  socket.on((`chat message${myRoom}`), (msg) => {
+    addLiToChatUl(`${msg.playerName}:${msg.message}`);
+  });
+  socket.on((`gameRefresh${myRoom}`), (gameObj) => {
+    // determine if you are currently player 1 or 2, otherwise you are spectator
+    // update ball position and enemy player position.
+    // if ball is in your side of court, don't update position
+    // if ForceResetPosition = 1 then update everything to the server positions
+    // do above when a player scores)
+    console.log(gameObj);
+  });
+  socket.on((`resetPosition${myRoom}`), () => {
+    resetPlayers();
+    resetBall();
+  });
+}
+function clearRoomListeners() {
+  socket.removeAllListeners(`chat message${myRoom}`);
+  socket.removeAllListeners(`gameRefresh${myRoom}`);
+  socket.removeAllListeners(`resetPosition${myRoom}`);
+}
+function updateSettings() { // eslint-disable-line no-unused-vars
+  clearRoomListeners();
+  myName = document.getElementById('usernameInput').value;
+  myRoom = document.getElementById('roomInput').value;
+  // clear text fields
+  document.getElementById('usernameInput').value = '';
+  document.getElementById('roomInput').value = '';
+  updateDisplaySettings();
+  setRoomListeners();
+}
+setRoomListeners();
 // parking lot

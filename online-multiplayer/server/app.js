@@ -177,10 +177,10 @@ io.on('connection', (socket) => {
       // if game in progress emit each .1 second
       // if not in progress emit each 3 seconds
       if (gameObjects[x].inProgress === true || engineIterationCount % 30 === 0) {
-        //io.emit(`gameRefresh${gameObjects[x].roomName}`, gameObjects[x]);
+        io.emit(`gameRefresh${gameObjects[x].roomName}`, gameObjects[x]);
       }
     }
-    if (lastActivity < new Date().getTime() * 1000 * 60) {
+    if (lastActivity < new Date().getTime() - (1000 * 15)) {
       clearInterval(myInterval);
       gameObjects = [];
       isGameEngineRunning = false;
