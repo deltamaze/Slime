@@ -115,9 +115,9 @@ const vertForce = 0.05;
 const defaultTicksOfUpwardThrust = 10;
 const upForcePerTick = 0.05;
 const downForce = 0.03;
-function resetBall() {
+function resetBall(velocity) {
   Matter.Body.setPosition(ball.body, { x: canvasWidth / 2, y: 100 });
-  Matter.Body.setVelocity(ball.body, { x: 20 * (Math.random() - 0.5), y: -5 * Math.random() });
+  Matter.Body.setVelocity(ball.body, velocity);
   player1.hitCount = 0;
   player2.hitCount = 0;
 }
@@ -135,7 +135,8 @@ function collision(event) {
         player1.lastHit = Date.now();
         if (player1.hitCount > 3) {
           // player2.score += 1;
-          resetBall();
+          // resetBall();
+          // report score to server
         }
       }
       player2.hitCount = 0;
@@ -146,7 +147,7 @@ function collision(event) {
         player2.lastHit = Date.now();
         if (player2.hitCount > 3) {
           // player1.score += 1;
-          resetBall();
+          // resetBall();
         }
       }
       player1.hitCount = 0;
@@ -157,11 +158,11 @@ function collision(event) {
   if (event.pairs[0].bodyA.label === 'ball' || event.pairs[0].bodyB.label === 'ball') {
     if (event.pairs[0].bodyA.label === 'p1Floor' || event.pairs[0].bodyB.label === 'p1Floor') {
       // player2.score += 1;
-      resetBall();
+      // resetBall();
     }
     if (event.pairs[0].bodyA.label === 'p2Floor' || event.pairs[0].bodyB.label === 'p2Floor') {
       // player1.score += 1;
-      resetBall();
+      // resetBall();
     }
   }
 }
@@ -180,7 +181,7 @@ function setup() { // eslint-disable-line no-unused-vars
   p1Floor = new Boundry(engine.world, canvasWidth / 4, canvasHeight, canvasWidth / 2, 100, 0, 'p1Floor');
   p2Floor = new Boundry(engine.world, (canvasWidth / 4) + (canvasWidth / 2), canvasHeight, canvasWidth / 2, 100, 0, 'p2Floor');
   ball = new Ball(engine.world, canvasWidth / 2, 100, 10);
-  resetBall();
+
   gameBodies.push(player1);
   gameBodies.push(player2);
   gameBodies.push(ball);
@@ -305,6 +306,7 @@ function setRoomListeners() {
   });
   socket.on((`gameRefresh${myRoom}`), (gameObj) => {
     serverGameObject = gameObj;
+    console.log(gameObj);
     // get p1 and p2 info
     let p1Updated = false;
     let p2Updated = false;
@@ -329,9 +331,9 @@ function setRoomListeners() {
       player2.userHash = '';
     }
   });
-  socket.on((`resetPosition${myRoom}`), () => {
+  socket.on((`resetPosition${myRoom}`), (ballVelocity) => {
     resetPlayers();
-    resetBall();
+    resetBall(ballVelocity);
   });
 }
 function clearRoomListeners() {
@@ -361,7 +363,6 @@ function updateSettings(targetField) { // eslint-disable-line no-unused-vars
 }
 setRoomListeners();
 // parking lot
-// remove ability for player to be p1 & p2
 // when server pushes reset ball, change ball from static to unstatic
 // force update player ball position after score /game start
 // otherweise only update ball position if it is greater than certain dist, and not on your side
