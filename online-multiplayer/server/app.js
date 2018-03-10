@@ -7,6 +7,15 @@ const http = require('http').Server(app);
 
 let gameObjects = [];// the static game objects which all threads will access
 let isGameEngineRunning = false;
+const playerTemplate = {
+  score: 0,
+  position: { x: 0, y: 0 },
+  velocity: { x: 0, y: 0 },
+};
+const ballTemplate = {
+  position: { x: 0, y: 0 },
+  velocity: { x: 0, y: 0 },
+};
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
@@ -36,6 +45,17 @@ const hash = (guid) => {
   }
   return hashVal;
 };
+const verifyComingFromPlayer = (gameId, guid) => {
+  const playerHash = hash(guid);
+  for (let y = 0; y < gameObjects[gameId].players.length; y += 1) {
+    if (playerHash === gameObjects[gameId].players[y].userHash) {
+      console.log('hash true');
+      return true;
+    }
+  }
+  console.log('hash false');
+  return false;
+};
 
 const createGameIfDoesNotExist = (gameName) => {
   const newGame = {
@@ -43,6 +63,9 @@ const createGameIfDoesNotExist = (gameName) => {
     players: [],
     inProgress: false,
     serveBall: true,
+    p1Info: playerTemplate,
+    p2Info: playerTemplate,
+    ball: ballTemplate,
     ts: new Date().getTime(),
   };
   gameObjects.push(newGame);
@@ -157,9 +180,6 @@ io.on('connection', (socket) => {
     console.log('reset client positions');
     io.emit(`resetPosition${gameName}`, ballVelocity);
   };
-  socket.on('updateScore', (scoreInfo) => {
-    resetClientPositions(scoreInfo.gameName);
-  });
   socket.on('disconnect', () => {
     console.log('user disconnected');
   });
@@ -186,13 +206,14 @@ io.on('connection', (socket) => {
           wasPlayerRemoved = true;
         }
       }
-      console.log(lastActivity);
       // if player was removed, clear our all players from game and end game
       if (wasPlayerRemoved && gameObjects[x].inProgress === true) {
         const msg = { playerName: 'SERVER', message: 'Ending Game, not enough players' };
         io.emit(`chat message${gameObjects[x].roomName}`, msg);
         gameObjects[x].inProgress = false;
         gameObjects[x].players = [];
+        gameObjects[x].p1Info = playerTemplate;
+        gameObjects[x].p2Info = playerTemplate;
       }
       // if game in progress emit each .1 second
       // if not in progress emit each 3 seconds
@@ -220,6 +241,20 @@ io.on('connection', (socket) => {
   socket.on('pingServer', (pingInfo) => {
     pingServer(pingInfo, pingInfo.gameName);
     tryStartEngine();
+  });
+  socket.on('updateScore', (scoreInfo) => {
+    const gameId = lookUpGameIdByName(scoreInfo.gameName);
+    if (gameObjects[gameId].inProgress === true &&
+      verifyComingFromPlayer(gameId, scoreInfo.reportedBy)) {
+      console.log(gameObjects[gameId]);
+      if (scoreInfo.p1Score > gameObjects[gameId].p1Info.score) {
+        gameObjects[gameId].p1Info.score += 1;
+        resetClientPositions(scoreInfo.gameName);
+      } else if (scoreInfo.p2Score > gameObjects[gameId].p2Info.score) {
+        gameObjects[gameId].p2Info.score += 1;
+        resetClientPositions(scoreInfo.gameName);
+      }
+    }
   });
 });
 // parking lot

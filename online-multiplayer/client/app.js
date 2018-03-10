@@ -116,6 +116,35 @@ const vertForce = 0.05;
 const defaultTicksOfUpwardThrust = 10;
 const upForcePerTick = 0.05;
 const downForce = 0.03;
+
+function currentPlayerStatus() {
+  if (myHash === player1.userHash) {
+    return 1;
+  } else if (myHash === player2.userHash) {
+    return 2;
+  }
+  return 0;
+}
+function updateScore(playerThatScores) {
+  // emit if currently a player
+  const newScore = {
+    gameName: myRoom,
+    reportedBy: myGuid,
+    p1Score: 0,
+    p2Score: 0,
+  };
+  if (playerThatScores === 1) {
+    newScore.p1Score = player1.score + 1;
+    newScore.p2Score = player2.score;
+  }
+  if (playerThatScores === 2) {
+    newScore.p1Score = player1.score;
+    newScore.p2Score = player2.score + 1;
+  }
+  if (currentPlayerStatus() > 0) {
+    socket.emit('updateScore', newScore);
+  }
+}
 function resetBall(velocity) {
   // Matter.Body.setStatic(ball.body, false);
   Matter.Body.setPosition(ball.body, { x: canvasWidth / 2, y: 100 });
@@ -136,9 +165,7 @@ function collision(event) {
         player1.hitCount += 1;
         player1.lastHit = Date.now();
         if (player1.hitCount > 3) {
-          // player2.score += 1;
-          // resetBall();
-          // report score to server
+          updateScore(2);
         }
       }
       player2.hitCount = 0;
@@ -148,8 +175,7 @@ function collision(event) {
         player2.hitCount += 1;
         player2.lastHit = Date.now();
         if (player2.hitCount > 3) {
-          // player1.score += 1;
-          // resetBall();
+          updateScore(1);
         }
       }
       player1.hitCount = 0;
@@ -159,12 +185,10 @@ function collision(event) {
 
   if (event.pairs[0].bodyA.label === 'ball' || event.pairs[0].bodyB.label === 'ball') {
     if (event.pairs[0].bodyA.label === 'p1Floor' || event.pairs[0].bodyB.label === 'p1Floor') {
-      // player2.score += 1;
-      // resetBall();
+      updateScore(1);
     }
     if (event.pairs[0].bodyA.label === 'p2Floor' || event.pairs[0].bodyB.label === 'p2Floor') {
-      // player1.score += 1;
-      // resetBall();
+      updateScore(1);
     }
   }
 }
@@ -272,28 +296,27 @@ function draw() { // eslint-disable-line no-unused-vars
   }, this);
 
   // PLAYER INPUT
-
   if (keyIsDown(87)) { // w
-    if (myHash === player1.userHash) {
+    if (currentPlayerStatus() === 1) {
       ApplyUpTick(player1);
     }
-    if (myHash === player2.userHash) {
+    if (currentPlayerStatus() === 2) {
       ApplyUpTick(player2);
     }
   }
   if (keyIsDown(68)) { // a
-    if (myHash === player1.userHash) {
+    if (currentPlayerStatus() === 1) {
       ApplyVertMovement(player1, 1);
     }
-    if (myHash === player2.userHash) {
+    if (currentPlayerStatus() === 2) {
       ApplyVertMovement(player2, 1);
     }
   }
   if (keyIsDown(65)) { // d
-    if (myHash === player1.userHash) {
+    if (currentPlayerStatus() === 1) {
       ApplyVertMovement(player1, -1);
     }
-    if (myHash === player2.userHash) {
+    if (currentPlayerStatus() === 2) {
       ApplyVertMovement(player2, -1);
     }
   }
@@ -315,6 +338,8 @@ function setRoomListeners() {
     // get p1 and p2 info
     let p1Updated = false;
     let p2Updated = false;
+    player1.score = gameObj.p1Info.score;
+    player2.score = gameObj.p2Info.score;
     for (let x = 0; x < gameObj.players.length; x += 1) {
       if (gameObj.players[x].playerNum === 1) {
         player1.username = gameObj.players[x].username;
@@ -337,7 +362,6 @@ function setRoomListeners() {
     }
   });
   socket.on((`resetPosition${myRoom}`), (ballVelocity) => {
-    console.log('test');
     resetPlayers();
     resetBall(ballVelocity);
   });
