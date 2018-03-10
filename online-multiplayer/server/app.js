@@ -160,14 +160,12 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('user disconnected');
   });
-  socket.on('pingServer', (pingInfo) => {
-    pingServer(pingInfo, pingInfo.gameName);
-  });
-
-  // const emitPlayerRefresh = (players) => {
-  //   io.emit('playerRefresh', players);
-  // };
   let myInterval;
+  const tryStartEngine = () => {
+    if (!isGameEngineRunning) {
+      myInterval = setInterval(gameEngine, 100);
+    }
+  };
   let engineIterationCount = 0;
   const gameEngine = () => {
     engineIterationCount += 1;
@@ -196,11 +194,13 @@ io.on('connection', (socket) => {
         io.emit(`chat message${gameObjects[x].roomName}`, msg);
         gameObjects[x].inProgress = false;
         gameObjects[x].players = [];
+        console.log(gameObjects);
       }
       // if game in progress emit each .1 second
       // if not in progress emit each 3 seconds
       if (gameObjects[x].inProgress === true || engineIterationCount % 30 === 0) {
         io.emit(`gameRefresh${gameObjects[x].roomName}`, gameObjects[x]);
+        console.log(gameObjects[x]);
       }
     }
     if (lastActivity < new Date().getTime() - (1000 * 15)) {
@@ -210,12 +210,11 @@ io.on('connection', (socket) => {
       engineIterationCount = 0;
     }
   };
-  if (!isGameEngineRunning) {
-    myInterval = setInterval(gameEngine, 100);
-  }
+  socket.on('pingServer', (pingInfo) => {
+    pingServer(pingInfo, pingInfo.gameName);
+    tryStartEngine();
+  });
 });
-
-
 // parking lot
 // if game in progress, and only 1 player detected, (investigate why game didn't end, and why client players don't get wiped when game does end)
 // cont: end game with msg stating other player disconnected

@@ -305,6 +305,7 @@ function setRoomListeners() {
     addLiToChatUl(`${msg.playerName}:${msg.message}`);
   });
   socket.on((`gameRefresh${myRoom}`), (gameObj) => {
+    // make sure p5 objects are setup first
     serverGameObject = gameObj;
     console.log(gameObj);
     // get p1 and p2 info
@@ -363,6 +364,7 @@ function updateSettings(targetField) { // eslint-disable-line no-unused-vars
 }
 setRoomListeners();
 // parking lot
+// add null checkers for player1 & player2
 // when server pushes reset ball, change ball from static to unstatic
 // force update player ball position after score /game start
 // otherweise only update ball position if it is greater than certain dist, and not on your side
