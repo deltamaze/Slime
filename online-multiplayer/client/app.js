@@ -34,6 +34,7 @@ let serverGameObject = {
   roomName: '',
   players: [],
   inProgress: false,
+  serveBall: true,
   ts: new Date().getTime(),
 };
 
@@ -116,6 +117,7 @@ const defaultTicksOfUpwardThrust = 10;
 const upForcePerTick = 0.05;
 const downForce = 0.03;
 function resetBall(velocity) {
+  // Matter.Body.setStatic(ball.body, false);
   Matter.Body.setPosition(ball.body, { x: canvasWidth / 2, y: 100 });
   Matter.Body.setVelocity(ball.body, velocity);
   player1.hitCount = 0;
@@ -181,7 +183,7 @@ function setup() { // eslint-disable-line no-unused-vars
   p1Floor = new Boundry(engine.world, canvasWidth / 4, canvasHeight, canvasWidth / 2, 100, 0, 'p1Floor');
   p2Floor = new Boundry(engine.world, (canvasWidth / 4) + (canvasWidth / 2), canvasHeight, canvasWidth / 2, 100, 0, 'p2Floor');
   ball = new Ball(engine.world, canvasWidth / 2, 100, 10);
-
+  // ball.body.isStatic = true;
   gameBodies.push(player1);
   gameBodies.push(player2);
   gameBodies.push(ball);
@@ -306,8 +308,10 @@ function setRoomListeners() {
   });
   socket.on((`gameRefresh${myRoom}`), (gameObj) => {
     // make sure p5 objects are setup first
+    if (player1 === undefined || player2 === undefined) {
+      return;
+    }
     serverGameObject = gameObj;
-    console.log(gameObj);
     // get p1 and p2 info
     let p1Updated = false;
     let p2Updated = false;
@@ -333,6 +337,7 @@ function setRoomListeners() {
     }
   });
   socket.on((`resetPosition${myRoom}`), (ballVelocity) => {
+    console.log('test');
     resetPlayers();
     resetBall(ballVelocity);
   });
@@ -364,8 +369,6 @@ function updateSettings(targetField) { // eslint-disable-line no-unused-vars
 }
 setRoomListeners();
 // parking lot
-// add null checkers for player1 & player2
-// when server pushes reset ball, change ball from static to unstatic
 // force update player ball position after score /game start
 // otherweise only update ball position if it is greater than certain dist, and not on your side
 // either player can report score

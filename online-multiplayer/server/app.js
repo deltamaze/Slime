@@ -42,6 +42,7 @@ const createGameIfDoesNotExist = (gameName) => {
     roomName: gameName,
     players: [],
     inProgress: false,
+    serveBall: true,
     ts: new Date().getTime(),
   };
   gameObjects.push(newGame);
@@ -68,6 +69,7 @@ const addPlayerToGame = (userInfo, playerNum, gameId) => {
 };
 const startGame = (gameId) => {
   gameObjects[gameId].inProgress = true;
+  gameObjects[gameId].serveBall = true;
 };
 const doWeHaveTwoActivePlayers = (gameId) => {
   let doesPlayerOneExist = false;
@@ -152,6 +154,7 @@ io.on('connection', (socket) => {
   });
   const resetClientPositions = (gameName) => {
     const ballVelocity = { x: 20 * (Math.random() - 0.5), y: -5 * Math.random() };
+    console.log('reset client positions');
     io.emit(`resetPosition${gameName}`, ballVelocity);
   };
   socket.on('updateScore', (scoreInfo) => {
@@ -161,11 +164,6 @@ io.on('connection', (socket) => {
     console.log('user disconnected');
   });
   let myInterval;
-  const tryStartEngine = () => {
-    if (!isGameEngineRunning) {
-      myInterval = setInterval(gameEngine, 100);
-    }
-  };
   let engineIterationCount = 0;
   const gameEngine = () => {
     engineIterationCount += 1;
@@ -188,19 +186,22 @@ io.on('connection', (socket) => {
           wasPlayerRemoved = true;
         }
       }
+      console.log(lastActivity);
       // if player was removed, clear our all players from game and end game
       if (wasPlayerRemoved && gameObjects[x].inProgress === true) {
         const msg = { playerName: 'SERVER', message: 'Ending Game, not enough players' };
         io.emit(`chat message${gameObjects[x].roomName}`, msg);
         gameObjects[x].inProgress = false;
         gameObjects[x].players = [];
-        console.log(gameObjects);
       }
       // if game in progress emit each .1 second
       // if not in progress emit each 3 seconds
+      if (gameObjects[x].serveBall && gameObjects[x].inProgress === true) {
+        gameObjects[x].serveBall = false;
+        resetClientPositions(gameObjects[x].roomName);
+      }
       if (gameObjects[x].inProgress === true || engineIterationCount % 30 === 0) {
         io.emit(`gameRefresh${gameObjects[x].roomName}`, gameObjects[x]);
-        console.log(gameObjects[x]);
       }
     }
     if (lastActivity < new Date().getTime() - (1000 * 15)) {
@@ -208,6 +209,12 @@ io.on('connection', (socket) => {
       gameObjects = [];
       isGameEngineRunning = false;
       engineIterationCount = 0;
+      console.log('Cleared Game Object');
+    }
+  };
+  const tryStartEngine = () => {
+    if (!isGameEngineRunning) {
+      myInterval = setInterval(gameEngine, 100);
     }
   };
   socket.on('pingServer', (pingInfo) => {
@@ -216,9 +223,6 @@ io.on('connection', (socket) => {
   });
 });
 // parking lot
-// if game in progress, and only 1 player detected, (investigate why game didn't end, and why client players don't get wiped when game does end)
-// cont: end game with msg stating other player disconnected
-// start game fires resetposition on client
 // take in player data and update game object
 // either player can report score
 // sanitize incoming data

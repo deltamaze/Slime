@@ -8,7 +8,6 @@ class Ball extends GameBody { // eslint-disable-line no-unused-vars
     const colorRed = 255;
     const options = {
       label: 'ball',
-      isStatic: true,
       friction: 0,
       frictionAir: 0.01,
       restitution: 0.9,
