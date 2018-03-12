@@ -7,15 +7,20 @@ const http = require('http').Server(app);
 
 let gameObjects = [];// the static game objects which all threads will access
 let isGameEngineRunning = false;
-const playerTemplate = {
-  score: 0,
-  position: { x: 0, y: 0 },
-  velocity: { x: 0, y: 0 },
-};
-const ballTemplate = {
-  position: { x: 0, y: 0 },
-  velocity: { x: 0, y: 0 },
-};
+
+class PlayerTemplate {
+  constructor() {
+    this.score = 0;
+    this.position = { x: 0, y: 0 };
+    this.direction = { x: 0, y: 0 };
+  }
+}
+class BallTemplate {
+  constructor() {
+    this.position = { x: 0, y: 0 };
+    this.velocity = { x: 0, y: 0 };
+  }
+}
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
@@ -49,11 +54,9 @@ const verifyComingFromPlayer = (gameId, guid) => {
   const playerHash = hash(guid);
   for (let y = 0; y < gameObjects[gameId].players.length; y += 1) {
     if (playerHash === gameObjects[gameId].players[y].userHash) {
-      console.log('hash true');
       return true;
     }
   }
-  console.log('hash false');
   return false;
 };
 
@@ -63,9 +66,9 @@ const createGameIfDoesNotExist = (gameName) => {
     players: [],
     inProgress: false,
     serveBall: true,
-    p1Info: playerTemplate,
-    p2Info: playerTemplate,
-    ball: ballTemplate,
+    p1Info: new PlayerTemplate(),
+    p2Info: new PlayerTemplate(),
+    ball: new BallTemplate(),
     ts: new Date().getTime(),
   };
   gameObjects.push(newGame);
@@ -212,8 +215,8 @@ io.on('connection', (socket) => {
         io.emit(`chat message${gameObjects[x].roomName}`, msg);
         gameObjects[x].inProgress = false;
         gameObjects[x].players = [];
-        gameObjects[x].p1Info = playerTemplate;
-        gameObjects[x].p2Info = playerTemplate;
+        gameObjects[x].p1Info = new PlayerTemplate();
+        gameObjects[x].p2Info = new PlayerTemplate();
       }
       // if game in progress emit each .1 second
       // if not in progress emit each 3 seconds
@@ -243,10 +246,10 @@ io.on('connection', (socket) => {
     tryStartEngine();
   });
   socket.on('updateScore', (scoreInfo) => {
+    console.log(scoreInfo);
     const gameId = lookUpGameIdByName(scoreInfo.gameName);
     if (gameObjects[gameId].inProgress === true &&
       verifyComingFromPlayer(gameId, scoreInfo.reportedBy)) {
-      console.log(gameObjects[gameId]);
       if (scoreInfo.p1Score > gameObjects[gameId].p1Info.score) {
         gameObjects[gameId].p1Info.score += 1;
         resetClientPositions(scoreInfo.gameName);
@@ -255,11 +258,11 @@ io.on('connection', (socket) => {
         resetClientPositions(scoreInfo.gameName);
       }
     }
+    console.log(gameObjects[gameId]);
   });
 });
 // parking lot
 // take in player data and update game object
-// either player can report score
 // sanitize incoming data
 // end game if it goes on too long
-
+// 

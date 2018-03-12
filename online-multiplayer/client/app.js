@@ -185,7 +185,7 @@ function collision(event) {
 
   if (event.pairs[0].bodyA.label === 'ball' || event.pairs[0].bodyB.label === 'ball') {
     if (event.pairs[0].bodyA.label === 'p1Floor' || event.pairs[0].bodyB.label === 'p1Floor') {
-      updateScore(1);
+      updateScore(2);
     }
     if (event.pairs[0].bodyA.label === 'p2Floor' || event.pairs[0].bodyB.label === 'p2Floor') {
       updateScore(1);
@@ -393,13 +393,9 @@ function updateSettings(targetField) { // eslint-disable-line no-unused-vars
 }
 setRoomListeners();
 // parking lot
-// force update player ball position after score /game start
 // otherweise only update ball position if it is greater than certain dist, and not on your side
-// either player can report score
-// server needs to push the ball start position (angle/position/velocity)down to client
-// update ui to use hidden textbox & hidden save & hidden cancel btn next to name/gameroom,
-// cont: have update button that will reveal hidden controls
 // emit client data to server when game in progress
 // emit player position
 // emit ball posiiton if in your half of court
 // if server is not reporting a player1/player2 then clear values
+// client only reports a loss
