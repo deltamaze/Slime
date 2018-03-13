@@ -53,24 +53,6 @@ function updateDisplaySettings() {
 }
 $(document).ready(() => { updateDisplaySettings(); });
 
-let pingInterval = 0;
-socket.on('connect', conn => conn);
-function pingServer() {
-  if (pingInterval % 30 === 0) {
-    const pingInfo = {
-      gameName: myRoom,
-      userGuid: myGuid,
-      username: myName,
-    };
-    socket.emit('pingServer', pingInfo);
-  }
-  // if player and ball on my side of court
-  //
-  pingInterval += 1;
-}
-
-setInterval(pingServer, 100);
-
 function postChat() { // eslint-disable-line no-unused-vars
   // grab content of chat
   const chatInputField = document.getElementById('chatText');
@@ -105,7 +87,6 @@ function joinGame() { // eslint-disable-line no-unused-vars
 
 // }
 
-
 let engine;
 let player1;
 let player2;
@@ -113,14 +94,6 @@ let ball;
 let p1Floor;
 let p2Floor;
 const gameBodies = [];
-
-const canvasHeight = 400;
-const canvasWidth = 800;
-const playerGroundedYPos = 329;
-const vertForce = 0.05;
-const defaultTicksOfUpwardThrust = 10;
-const upForcePerTick = 0.05;
-const downForce = 0.03;
 
 function currentPlayerStatus() {
   if (myHash === player1.userHash) {
@@ -130,6 +103,43 @@ function currentPlayerStatus() {
   }
   return 0;
 }
+
+let pingInterval = 0;
+socket.on('connect', conn => conn);
+function pingServer() {
+  if (pingInterval % 30 === 0) {
+    const pingInfo = {
+      gameName: myRoom,
+      userGuid: myGuid,
+      username: myName,
+    };
+    socket.emit('pingServer', pingInfo);
+  }
+  // if game in progress, i am player, and ball on my side of court
+  // todo: come back here and fix x positions and package
+  if (serverGameObject.inProgress === true &&
+    (
+      (currentPlayerStatus() === 1 && ball.body.position.x > 100) ||
+      (currentPlayerStatus() === 2 && ball.body.position.x < 100)
+    )) {
+    const positionPackage = 'test';
+    socket.emit('emitGameObjectPositions', positionPackage);
+  }
+  //
+  pingInterval += 1;
+}
+
+setInterval(pingServer, 100);
+
+const canvasHeight = 400;
+const canvasWidth = 800;
+const playerGroundedYPos = 329;
+const vertForce = 0.05;
+const defaultTicksOfUpwardThrust = 10;
+const upForcePerTick = 0.05;
+const downForce = 0.03;
+
+
 function updateScore(playerThatScores) {
   // emit if currently a player
   const newScore = {
