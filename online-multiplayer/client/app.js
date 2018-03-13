@@ -53,18 +53,23 @@ function updateDisplaySettings() {
 }
 $(document).ready(() => { updateDisplaySettings(); });
 
-
+let pingInterval = 0;
 socket.on('connect', conn => conn);
 function pingServer() {
-  const pingInfo = {
-    gameName: myRoom,
-    userGuid: myGuid,
-    username: myName,
-  };
-  socket.emit('pingServer', pingInfo);
+  if (pingInterval % 30 === 0) {
+    const pingInfo = {
+      gameName: myRoom,
+      userGuid: myGuid,
+      username: myName,
+    };
+    socket.emit('pingServer', pingInfo);
+  }
+  // if player and ball on my side of court
+  //
+  pingInterval += 1;
 }
 
-setInterval(pingServer, 3000);
+setInterval(pingServer, 100);
 
 function postChat() { // eslint-disable-line no-unused-vars
   // grab content of chat
