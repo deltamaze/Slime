@@ -78,15 +78,6 @@ function joinGame() { // eslint-disable-line no-unused-vars
   // or returning back your hash. if myHash = serverHash, then we good.
 }
 
-
-// function pushPlayerPosition() {
-//   // send up guid,player position,
-//   // if ball is on your side of the court, then send up ball position too
-// }
-// function pushWinCondition() {
-
-// }
-
 let engine;
 let player1;
 let player2;
@@ -94,6 +85,13 @@ let ball;
 let p1Floor;
 let p2Floor;
 const gameBodies = [];
+const canvasHeight = 400;
+const canvasWidth = 800;
+const playerGroundedYPos = 329;
+const vertForce = 0.05;
+const defaultTicksOfUpwardThrust = 10;
+const upForcePerTick = 0.05;
+const downForce = 0.03;
 
 function currentPlayerStatus() {
   if (myHash === player1.userHash) {
@@ -119,8 +117,8 @@ function pingServer() {
   // todo: come back here and fix x positions and package
   if (serverGameObject.inProgress === true &&
     (
-      (currentPlayerStatus() === 1 && ball.body.position.x > 100) ||
-      (currentPlayerStatus() === 2 && ball.body.position.x < 100)
+      (currentPlayerStatus() === 1 && ball.body.position.x > canvasWidth / 2) ||
+      (currentPlayerStatus() === 2 && ball.body.position.x < canvasWidth / 2)
     )) {
     const positionPackage = 'test';
     socket.emit('emitGameObjectPositions', positionPackage);
@@ -130,15 +128,6 @@ function pingServer() {
 }
 
 setInterval(pingServer, 100);
-
-const canvasHeight = 400;
-const canvasWidth = 800;
-const playerGroundedYPos = 329;
-const vertForce = 0.05;
-const defaultTicksOfUpwardThrust = 10;
-const upForcePerTick = 0.05;
-const downForce = 0.03;
-
 
 function updateScore(playerThatScores) {
   // emit if currently a player
