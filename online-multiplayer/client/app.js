@@ -120,7 +120,16 @@ function pingServer() {
       (currentPlayerStatus() === 1 && ball.body.position.x > canvasWidth / 2) ||
       (currentPlayerStatus() === 2 && ball.body.position.x < canvasWidth / 2)
     )) {
-    const positionPackage = 'test';
+    const positionPackage = {
+      ball: {
+        pos: ball.body.position,
+        vel: ball.body.velocity,
+      },
+      player: {
+        playerOnePos: player1.body.position,
+        playerOneVel: 0, // update this to be based on downKey/Uptick if you are this player
+      },
+    };
     socket.emit('emitGameObjectPositions', positionPackage);
   }
   //
