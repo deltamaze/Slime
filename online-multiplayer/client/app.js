@@ -120,17 +120,20 @@ function pingServer() {
       (currentPlayerStatus() === 1 && ball.body.position.x > canvasWidth / 2) ||
       (currentPlayerStatus() === 2 && ball.body.position.x < canvasWidth / 2)
     )) {
-    const positionPackage = {
+    const positionInfo = {
+      gameName: myRoom,
+      reportedBy: myGuid,
       ball: {
         pos: ball.body.position,
         vel: ball.body.velocity,
       },
       player: {
+        playerNum: currentPlayerStatus(),
         playerOnePos: player1.body.position,
         playerOneVel: 0, // update this to be based on downKey/Uptick if you are this player
       },
     };
-    socket.emit('emitGameObjectPositions', positionPackage);
+    socket.emit('emitGameObjectPositions', positionInfo);
   }
   //
   pingInterval += 1;
@@ -373,6 +376,13 @@ function setRoomListeners() {
       player2.username = '';
       player2.userHash = '';
     }
+  });
+  socket.on((`updateGameObjectPositions${myRoom}`), (positionObj) => {
+    // make sure p5 objects are setup first
+    if (player1 === undefined || player2 === undefined) {
+      return;
+    }
+    console.log(positionObj);
   });
   socket.on((`resetPosition${myRoom}`), (ballVelocity) => {
     resetPlayers();

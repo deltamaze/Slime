@@ -180,7 +180,6 @@ io.on('connection', (socket) => {
   });
   const resetClientPositions = (gameName) => {
     const ballVelocity = { x: 20 * (Math.random() - 0.5), y: -5 * Math.random() };
-    console.log('reset client positions');
     io.emit(`resetPosition${gameName}`, ballVelocity);
   };
   socket.on('disconnect', () => {
@@ -239,14 +238,25 @@ io.on('connection', (socket) => {
   const tryStartEngine = () => {
     if (!isGameEngineRunning) {
       myInterval = setInterval(gameEngine, 100);
+      console.log('Starting Int');
     }
   };
   socket.on('pingServer', (pingInfo) => {
     pingServer(pingInfo, pingInfo.gameName);
     tryStartEngine();
   });
+  socket.on('emitGameObjectPositions', (positionInfo) => {
+    const gameId = lookUpGameIdByName(positionInfo.gameName);
+    if (verifyComingFromPlayer(gameId, positionInfo.reportedBy)) {
+      // emit what came in, put strip out Guid
+      const positionPackage = {
+        ball: positionInfo.ball,
+        player: positionInfo.player,
+      };
+      io.emit(`updateGameObjectPositions${gameObjects[gameId].roomName}`, positionPackage);
+    }
+  });
   socket.on('updateScore', (scoreInfo) => {
-    console.log(scoreInfo);
     const gameId = lookUpGameIdByName(scoreInfo.gameName);
     if (gameObjects[gameId].inProgress === true &&
       verifyComingFromPlayer(gameId, scoreInfo.reportedBy)) {
@@ -258,11 +268,10 @@ io.on('connection', (socket) => {
         resetClientPositions(scoreInfo.gameName);
       }
     }
-    console.log(gameObjects[gameId]);
   });
 });
 // parking lot
 // take in player data and update game object
 // sanitize incoming data
 // end game if it goes on too long
-// 
+//
