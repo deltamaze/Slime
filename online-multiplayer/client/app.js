@@ -1,5 +1,5 @@
 /* global Player document Boundry Ball Matter keyIsDown textSize
-noStroke background fill text $ io createCanvas */
+noStroke background fill text $ io createCanvas dist int */
 
 
 function guid() {
@@ -117,8 +117,12 @@ function pingServer() {
   // todo: come back here and fix x positions and package
   if (serverGameObject.inProgress === true &&
     (
-      (currentPlayerStatus() === 1 && ball.body.position.x > canvasWidth / 2) ||
-      (currentPlayerStatus() === 2 && ball.body.position.x < canvasWidth / 2)
+      (currentPlayerStatus() === 1 &&
+        (ball.body.position.x < canvasWidth / 2 || pingInterval % 5 === 0
+        )) ||
+      (currentPlayerStatus() === 2 &&
+        (ball.body.position.x > canvasWidth / 2 || pingInterval % 5 === 0
+        ))
     )) {
     const positionInfo = {
       gameName: myRoom,
@@ -157,7 +161,8 @@ function updateScore(playerThatScores) {
     newScore.p1Score = player1.score;
     newScore.p2Score = player2.score + 1;
   }
-  if (currentPlayerStatus() > 0) {
+  // only emit if you were the one who got scored on
+  if (currentPlayerStatus() > 0 && currentPlayerStatus() !== playerThatScores) {
     socket.emit('updateScore', newScore);
   }
 }
@@ -168,8 +173,7 @@ function resetBall(velocity) {
   player1.hitCount = 0;
   player2.hitCount = 0;
 }
-// player1 = new Player(engine.world, 40, 150, 200, 1);
-// player2 = new Player(engine.world, 40, canvasWidth - 150, 200, 2);
+
 function resetPlayers() {
   Matter.Body.setPosition(player1.body, { x: 150, y: 200 });
   Matter.Body.setPosition(player2.body, { x: canvasWidth - 150, y: 200 });
@@ -223,7 +227,7 @@ function setup() { // eslint-disable-line no-unused-vars
   p1Floor = new Boundry(engine.world, canvasWidth / 4, canvasHeight, canvasWidth / 2, 100, 0, 'p1Floor');
   p2Floor = new Boundry(engine.world, (canvasWidth / 4) + (canvasWidth / 2), canvasHeight, canvasWidth / 2, 100, 0, 'p2Floor');
   ball = new Ball(engine.world, canvasWidth / 2, 100, 10);
-  // ball.body.isStatic = true;
+
   gameBodies.push(player1);
   gameBodies.push(player2);
   gameBodies.push(ball);
@@ -382,7 +386,34 @@ function setRoomListeners() {
     if (player1 === undefined || player2 === undefined) {
       return;
     }
-    console.log(positionObj);
+    // update ball position if not in your side, and wasn't reported by you
+    if (serverGameObject.inProgress === true &&
+      (
+        (currentPlayerStatus() === 1 &&
+          positionObj.ball.pos.x > canvasWidth / 2 &&
+          positionObj.player.playerNum === 2
+        ) ||
+        (currentPlayerStatus() === 2 &&
+          positionObj.ball.pos.x < canvasWidth / 2 &&
+          positionObj.player.playerNum === 1
+        )
+      )) {
+      // if dist is greater than 5 update
+      if (int(dist(
+        positionObj.ball.pos.x,
+        positionObj.ball.pos.y,
+        ball.body.position.x,
+        ball.body.position.y,
+      )) > 5) {
+        Matter.Body.setPosition(
+          ball.body,
+          { x: positionObj.ball.pos.x, y: positionObj.ball.pos.x },
+        );
+        Matter.Body.setVelocity(ball.body, positionObj.ball.vel);
+        console.log(positionObj);
+      }
+    }
+    // update player position if not you
   });
   socket.on((`resetPosition${myRoom}`), (ballVelocity) => {
     resetPlayers();
