@@ -30,6 +30,7 @@ const myGuid = guid();
 const myHash = hash(myGuid);
 let myName = `Player${(Math.floor(Math.random() * 10000)).toString()}`;
 let myRoom = 'Main';
+let ballUpdateTime = 0;
 let serverGameObject = {
   roomName: '',
   players: [],
@@ -136,6 +137,7 @@ function pingServer() {
         playerOnePos: player1.body.position,
         playerOneVel: 0, // update this to be based on downKey/Uptick if you are this player
       },
+      ts: Date.now(),
     };
     socket.emit('emitGameObjectPositions', positionInfo);
   }
@@ -404,20 +406,25 @@ function setRoomListeners() {
         positionObj.ball.pos.y,
         ball.body.position.x,
         ball.body.position.y,
-      )) > 5) {
+      )) > 5 && ballUpdateTime < positionObj.ts) {
         Matter.Body.setPosition(
           ball.body,
-          { x: positionObj.ball.pos.x, y: positionObj.ball.pos.x },
+          { x: positionObj.ball.pos.x, y: positionObj.ball.pos.y },
         );
+        // console.log(`ball x ${ball.body.position.x} ball y ${ball.body.position.y}
+        // serverx ${positionObj.ball.pos.x} server y`);
         Matter.Body.setVelocity(ball.body, positionObj.ball.vel);
-        console.log(positionObj);
+        ballUpdateTime = positionObj.ts;
       }
     }
     // update player position if not you
   });
-  socket.on((`resetPosition${myRoom}`), (ballVelocity) => {
+  socket.on((`resetPosition${myRoom}`), (resetPackage) => {
     resetPlayers();
-    resetBall(ballVelocity);
+    resetBall(resetPackage.ballVelocity);
+    // always update ball after a hard reset from server, and to avoid sync issue,
+    // don't let client update ball for another second after this comes through
+    ballUpdateTime = resetPackage.ts + 1000;
   });
 }
 function clearRoomListeners() {

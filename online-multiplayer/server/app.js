@@ -179,8 +179,11 @@ io.on('connection', (socket) => {
     io.emit(`chat message${msg.roomName}`, msg);
   });
   const resetClientPositions = (gameName) => {
-    const ballVelocity = { x: 20 * (Math.random() - 0.5), y: -5 * Math.random() };
-    io.emit(`resetPosition${gameName}`, ballVelocity);
+    const resetPackage = {
+      ballVelocity: { x: 20 * (Math.random() - 0.5), y: -5 * Math.random() },
+      ts: Date.now(),
+    };
+    io.emit(`resetPosition${gameName}`, resetPackage);
   };
   socket.on('disconnect', () => {
     console.log('user disconnected');
@@ -252,6 +255,7 @@ io.on('connection', (socket) => {
       const positionPackage = {
         ball: positionInfo.ball,
         player: positionInfo.player,
+        ts: positionInfo.ts,
       };
       io.emit(`updateGameObjectPositions${gameObjects[gameId].roomName}`, positionPackage);
     }
