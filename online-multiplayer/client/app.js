@@ -134,11 +134,23 @@ function pingServer() {
       },
       player: {
         playerNum: currentPlayerStatus(),
-        playerOnePos: player1.body.position,
-        playerOneVel: 0, // update this to be based on downKey/Uptick if you are this player
+        pos: { x: 0, y: 0 },
+        vel: { x: 0, y: 0 },
+        upTick: 0,
       },
       ts: Date.now(),
     };
+    // populate player data with corresponding current player object
+    if (positionInfo.player.playerNum === 1) {
+      positionInfo.player.pos = player1.body.pos;
+      positionInfo.player.vel = player1.body.vel;
+      positionInfo.player.upTick = player1.ticksOfUpwardThrust;
+    } else if (positionInfo.player.playerNum === 2) {
+      positionInfo.player.pos = player2.body.pos;
+      positionInfo.player.vel = player2.body.vel;
+      positionInfo.player.upTick = player2.ticksOfUpwardThrust;
+    }
+
     socket.emit('emitGameObjectPositions', positionInfo);
   }
   //
@@ -411,13 +423,31 @@ function setRoomListeners() {
           ball.body,
           { x: positionObj.ball.pos.x, y: positionObj.ball.pos.y },
         );
-        // console.log(`ball x ${ball.body.position.x} ball y ${ball.body.position.y}
-        // serverx ${positionObj.ball.pos.x} server y`);
         Matter.Body.setVelocity(ball.body, positionObj.ball.vel);
         ballUpdateTime = positionObj.ts;
       }
     }
     // update player position if not you
+    if (serverGameObject.inProgress === true && // update p2 pos
+      currentPlayerStatus() === 1 &&
+      positionObj.player.playerNum === 2) {
+      console.log(positionObj);
+      Matter.Body.setPosition(
+        player2.body,
+        { x: positionObj.player.pos.x, y: positionObj.player.pos.y },
+      );
+      Matter.Body.setVelocity(player2.body, positionObj.player.vel);
+      player2.ticksOfUpwardThrust = positionObj.player.upTick;
+    } else if (serverGameObject.inProgress === true && // update p1 pos
+      currentPlayerStatus() === 2 &&
+      positionObj.player.playerNum === 1) {
+      Matter.Body.setPosition(
+        player1.body,
+        { x: positionObj.player.pos.x, y: positionObj.player.pos.y },
+      );
+      Matter.Body.setVelocity(player1.body, positionObj.player.vel);
+      player1.ticksOfUpwardThrust = positionObj.player.upTick;
+    }
   });
   socket.on((`resetPosition${myRoom}`), (resetPackage) => {
     resetPlayers();

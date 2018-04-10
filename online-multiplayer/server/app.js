@@ -251,7 +251,7 @@ io.on('connection', (socket) => {
   socket.on('emitGameObjectPositions', (positionInfo) => {
     const gameId = lookUpGameIdByName(positionInfo.gameName);
     if (verifyComingFromPlayer(gameId, positionInfo.reportedBy)) {
-      // emit what came in, put strip out Guid
+      // emit what came in, but strip out Guid
       const positionPackage = {
         ball: positionInfo.ball,
         player: positionInfo.player,
