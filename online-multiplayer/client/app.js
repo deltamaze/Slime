@@ -137,20 +137,23 @@ function pingServer() {
         pos: { x: 0, y: 0 },
         vel: { x: 0, y: 0 },
         upTick: 0,
+        hit: 0,
       },
       ts: Date.now(),
     };
     // populate player data with corresponding current player object
     if (positionInfo.player.playerNum === 1) {
-      positionInfo.player.pos = player1.body.pos;
-      positionInfo.player.vel = player1.body.vel;
+      positionInfo.player.pos = player1.body.position;
+      positionInfo.player.vel = player1.body.velocity;
       positionInfo.player.upTick = player1.ticksOfUpwardThrust;
+      positionInfo.player.hits = player1.hitCount;
     } else if (positionInfo.player.playerNum === 2) {
-      positionInfo.player.pos = player2.body.pos;
-      positionInfo.player.vel = player2.body.vel;
+      positionInfo.player.pos = player2.body.position;
+      positionInfo.player.vel = player2.body.velocity;
       positionInfo.player.upTick = player2.ticksOfUpwardThrust;
+      positionInfo.player.hits = player2.hitCount;
     }
-
+    console.log(player1.ticksOfUpwardThrust);
     socket.emit('emitGameObjectPositions', positionInfo);
   }
   //
@@ -438,6 +441,7 @@ function setRoomListeners() {
       );
       Matter.Body.setVelocity(player2.body, positionObj.player.vel);
       player2.ticksOfUpwardThrust = positionObj.player.upTick;
+      player2.hitCount = positionObj.player.hits;
     } else if (serverGameObject.inProgress === true && // update p1 pos
       currentPlayerStatus() === 2 &&
       positionObj.player.playerNum === 1) {
@@ -447,6 +451,7 @@ function setRoomListeners() {
       );
       Matter.Body.setVelocity(player1.body, positionObj.player.vel);
       player1.ticksOfUpwardThrust = positionObj.player.upTick;
+      player1.hitCount = positionObj.player.hits;
     }
   });
   socket.on((`resetPosition${myRoom}`), (resetPackage) => {
