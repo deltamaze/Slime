@@ -113,6 +113,18 @@ function pingServer() {
       username: myName,
     };
     socket.emit('pingServer', pingInfo);
+    // if no ball update in 10 seconds, ball is probably out of sync
+    // ask server to reset the position
+    if (serverGameObject.inProgress === true &&
+      currentPlayerStatus() > 0 &&
+      ballUpdateTime + 10000 < Date.now()) {
+      const resetInfo = {
+        gameName: myRoom,
+        userGuid: myGuid,
+      };
+      socket.emit('resetNoScore', resetInfo);
+      ballUpdateTime = Date.now();
+    }
   }
   // if game in progress, i am player, and ball on my side of court
   // todo: come back here and fix x positions and package
@@ -153,7 +165,6 @@ function pingServer() {
       positionInfo.player.upTick = player2.ticksOfUpwardThrust;
       positionInfo.player.hits = player2.hitCount;
     }
-    console.log(player1.ticksOfUpwardThrust);
     socket.emit('emitGameObjectPositions', positionInfo);
   }
   //
@@ -434,7 +445,6 @@ function setRoomListeners() {
     if (serverGameObject.inProgress === true && // update p2 pos
       currentPlayerStatus() === 1 &&
       positionObj.player.playerNum === 2) {
-      console.log(positionObj);
       Matter.Body.setPosition(
         player2.body,
         { x: positionObj.player.pos.x, y: positionObj.player.pos.y },

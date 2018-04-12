@@ -260,6 +260,13 @@ io.on('connection', (socket) => {
       io.emit(`updateGameObjectPositions${gameObjects[gameId].roomName}`, positionPackage);
     }
   });
+  socket.on('resetNoScore', (resetInfo) => {
+    const gameId = lookUpGameIdByName(resetInfo.gameName);
+    if (verifyComingFromPlayer(gameId, resetInfo.userGuid)) {
+      // emit what came in, but strip out Guid
+      resetClientPositions(resetInfo.gameName);
+    }
+  });
   socket.on('updateScore', (scoreInfo) => {
     const gameId = lookUpGameIdByName(scoreInfo.gameName);
     if (gameObjects[gameId].inProgress === true &&
