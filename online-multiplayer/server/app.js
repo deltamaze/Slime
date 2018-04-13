@@ -192,7 +192,6 @@ io.on('connection', (socket) => {
   let engineIterationCount = 0;
   const gameEngine = () => {
     engineIterationCount += 1;
-    isGameEngineRunning = true;
     let lastActivity = new Date(0).getTime(); // find out last player activity across all games
     // loop through all game rooms
     for (let x = 0; x < gameObjects.length; x += 1) {
@@ -240,6 +239,7 @@ io.on('connection', (socket) => {
   };
   const tryStartEngine = () => {
     if (!isGameEngineRunning) {
+      isGameEngineRunning = true;
       myInterval = setInterval(gameEngine, 100);
       console.log('Starting Int');
     }

@@ -443,7 +443,7 @@ function setRoomListeners() {
     }
     // update player position if not you
     if (serverGameObject.inProgress === true && // update p2 pos
-      currentPlayerStatus() === 1 &&
+      currentPlayerStatus() !== 2 &&
       positionObj.player.playerNum === 2) {
       Matter.Body.setPosition(
         player2.body,
@@ -453,7 +453,7 @@ function setRoomListeners() {
       player2.ticksOfUpwardThrust = positionObj.player.upTick;
       player2.hitCount = positionObj.player.hits;
     } else if (serverGameObject.inProgress === true && // update p1 pos
-      currentPlayerStatus() === 2 &&
+      currentPlayerStatus() !== 1 &&
       positionObj.player.playerNum === 1) {
       Matter.Body.setPosition(
         player1.body,
