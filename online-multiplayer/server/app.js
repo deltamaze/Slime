@@ -196,7 +196,7 @@ io.on('connection', (socket) => {
     // loop through all game rooms
     for (let x = 0; x < gameObjects.length; x += 1) {
       // find last player activity
-      let wasPlayerRemoved = false;
+      let endGameFlag = false;
       for (let y = 0; y < gameObjects[x].players.length; y += 1) {
         if (gameObjects[x].players[y].ts > lastActivity) {
           lastActivity = gameObjects[x].players[y].ts;
@@ -207,12 +207,28 @@ io.on('connection', (socket) => {
           io.emit(`chat message${gameObjects[x].roomName}`, msg);
           gameObjects[x].players[y].playerNum = 0; // remove as an active player
           // if game was in progress and player removed, end game
-          wasPlayerRemoved = true;
+          endGameFlag = true;
+        }
+        // find out if a player1 has 7 points/won the game
+        if (gameObjects[x].players[y].playerNum === 1 && gameObjects[x].p1Info.score >= 7) {
+          const msg = { playerName: 'SERVER', message: `${gameObjects[x].players[y].username} Won The Game!` };
+          io.emit(`chat message${gameObjects[x].roomName}`, msg);
+          gameObjects[x].players[y].playerNum = 0; // remove as an active player
+          // if game was in progress and player removed, end game
+          endGameFlag = true;
+        }
+        // find out if a player2 has 7 points/won the game
+        if (gameObjects[x].players[y].playerNum === 2 && gameObjects[x].p2Info.score >= 7) {
+          const msg = { playerName: 'SERVER', message: `${gameObjects[x].players[y].username} Won The Game!` };
+          io.emit(`chat message${gameObjects[x].roomName}`, msg);
+          gameObjects[x].players[y].playerNum = 0; // remove as an active player
+          // if game was in progress and player removed, end game
+          endGameFlag = true;
         }
       }
       // if player was removed, clear our all players from game and end game
-      if (wasPlayerRemoved && gameObjects[x].inProgress === true) {
-        const msg = { playerName: 'SERVER', message: 'Ending Game, not enough players' };
+      if (endGameFlag && gameObjects[x].inProgress === true) {
+        const msg = { playerName: 'SERVER', message: 'Ending Game' };
         io.emit(`chat message${gameObjects[x].roomName}`, msg);
         gameObjects[x].inProgress = false;
         gameObjects[x].players = [];
@@ -265,6 +281,8 @@ io.on('connection', (socket) => {
     if (verifyComingFromPlayer(gameId, resetInfo.userGuid)) {
       // emit what came in, but strip out Guid
       resetClientPositions(resetInfo.gameName);
+      const msg = { playerName: 'SERVER', message: 'Out of Sync detected, resetting positions' };
+      io.emit(`chat message${resetInfo.gameName}`, msg);
     }
   });
   socket.on('updateScore', (scoreInfo) => {
