@@ -28,7 +28,7 @@ app.use((req, res, next) => {
   next();
 });
 console.log('Server Started');
-app.get('/test/', (req, res) => {
+app.get('/slimeapi/test/', (req, res) => {
   res.send('Hello World!');
 });
 

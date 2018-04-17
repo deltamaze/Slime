@@ -40,7 +40,7 @@ let serverGameObject = {
 };
 
 // show current name/room in html
-const socket = io('http://localhost:8080');
+const socket = io('https://apis.wpooley.com/slimeapi/');
 function addLiToChatUl(msg) {
   const ul = document.getElementById('chatUl');// .prepend(`<li>${msg}</li>`);
   const li = document.createElement('li');
