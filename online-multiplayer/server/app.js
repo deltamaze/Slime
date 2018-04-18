@@ -36,7 +36,11 @@ const PORT = process.env.PORT || 8081;
 http.listen(PORT, () => {
 });
 
-const io = require('socket.io')(http);
+
+const io = require('socket.io')(http, { path: '/slimeapi/socket.io' });
+
+console.log(io);
+// io.listen(app, { resource: 'slimeapi/socket.io' });
 
 const hash = (guid) => {
   let hashVal = 0;
@@ -168,7 +172,9 @@ const pingServer = (rawUserInfo, gameName) => {
     gameObjects[gameId].players.push(userInfo);
   }
 };
-io.on('connection', (socket) => {
+
+io.of('/slimeapi').on('connection', (socket) => {
+// io.on('connection', (socket) => {
   console.log('a user connected');
 
   socket.on('joinGame', (userInfo) => {
@@ -176,14 +182,15 @@ io.on('connection', (socket) => {
     tryAddPlayerToGame(userInfo, userInfo.gameName);
   });
   socket.on('chat message', (msg) => {
-    io.emit(`chat message${msg.roomName}`, msg);
+    console.log(msg);
+    io.of('/slimeapi').emit(`chat message${msg.roomName}`, msg);
   });
   const resetClientPositions = (gameName) => {
     const resetPackage = {
       ballVelocity: { x: 20 * (Math.random() - 0.5), y: -5 * Math.random() },
       ts: Date.now(),
     };
-    io.emit(`resetPosition${gameName}`, resetPackage);
+    io.of('/slimeapi').emit(`resetPosition${gameName}`, resetPackage);
   };
   socket.on('disconnect', () => {
     console.log('user disconnected');
@@ -204,7 +211,7 @@ io.on('connection', (socket) => {
         if (gameObjects[x].players[y].playerNum > 0 &&
           gameObjects[x].players[y].ts < new Date().getTime() - (1000 * 15)) { // inactive 15 sec
           const msg = { playerName: 'SERVER', message: `${gameObjects[x].players[y].username} removed for being inactive` };
-          io.emit(`chat message${gameObjects[x].roomName}`, msg);
+          io.of('/slimeapi').emit(`chat message${gameObjects[x].roomName}`, msg);
           gameObjects[x].players[y].playerNum = 0; // remove as an active player
           // if game was in progress and player removed, end game
           endGameFlag = true;
@@ -212,7 +219,7 @@ io.on('connection', (socket) => {
         // find out if a player1 has 7 points/won the game
         if (gameObjects[x].players[y].playerNum === 1 && gameObjects[x].p1Info.score >= 7) {
           const msg = { playerName: 'SERVER', message: `${gameObjects[x].players[y].username} Won The Game!` };
-          io.emit(`chat message${gameObjects[x].roomName}`, msg);
+          io.of('/slimeapi').emit(`chat message${gameObjects[x].roomName}`, msg);
           gameObjects[x].players[y].playerNum = 0; // remove as an active player
           // if game was in progress and player removed, end game
           endGameFlag = true;
@@ -220,7 +227,7 @@ io.on('connection', (socket) => {
         // find out if a player2 has 7 points/won the game
         if (gameObjects[x].players[y].playerNum === 2 && gameObjects[x].p2Info.score >= 7) {
           const msg = { playerName: 'SERVER', message: `${gameObjects[x].players[y].username} Won The Game!` };
-          io.emit(`chat message${gameObjects[x].roomName}`, msg);
+          io.of('/slimeapi').emit(`chat message${gameObjects[x].roomName}`, msg);
           gameObjects[x].players[y].playerNum = 0; // remove as an active player
           // if game was in progress and player removed, end game
           endGameFlag = true;
@@ -229,7 +236,7 @@ io.on('connection', (socket) => {
       // if player was removed, clear our all players from game and end game
       if (endGameFlag && gameObjects[x].inProgress === true) {
         const msg = { playerName: 'SERVER', message: 'Ending Game' };
-        io.emit(`chat message${gameObjects[x].roomName}`, msg);
+        io.of('/slimeapi').emit(`chat message${gameObjects[x].roomName}`, msg);
         gameObjects[x].inProgress = false;
         gameObjects[x].players = [];
         gameObjects[x].p1Info = new PlayerTemplate();
@@ -242,7 +249,7 @@ io.on('connection', (socket) => {
         resetClientPositions(gameObjects[x].roomName);
       }
       if (gameObjects[x].inProgress === true || engineIterationCount % 30 === 0) {
-        io.emit(`gameRefresh${gameObjects[x].roomName}`, gameObjects[x]);
+        io.of('/slimeapi').emit(`gameRefresh${gameObjects[x].roomName}`, gameObjects[x]);
       }
     }
     if (lastActivity < new Date().getTime() - (1000 * 15)) {
@@ -273,7 +280,7 @@ io.on('connection', (socket) => {
         player: positionInfo.player,
         ts: positionInfo.ts,
       };
-      io.emit(`updateGameObjectPositions${gameObjects[gameId].roomName}`, positionPackage);
+      io.of('/slimeapi').emit(`updateGameObjectPositions${gameObjects[gameId].roomName}`, positionPackage);
     }
   });
   socket.on('resetNoScore', (resetInfo) => {
@@ -282,7 +289,7 @@ io.on('connection', (socket) => {
       // emit what came in, but strip out Guid
       resetClientPositions(resetInfo.gameName);
       const msg = { playerName: 'SERVER', message: 'Out of Sync detected, resetting positions' };
-      io.emit(`chat message${resetInfo.gameName}`, msg);
+      io.of('/slimeapi').emit(`chat message${resetInfo.gameName}`, msg);
     }
   });
   socket.on('updateScore', (scoreInfo) => {
