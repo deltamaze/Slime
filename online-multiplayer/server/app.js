@@ -98,8 +98,10 @@ const addPlayerToGame = (userInfo, playerNum, gameId) => {
   }
 };
 const startGame = (gameId) => {
-  gameObjects[gameId].inProgress = true;
-  gameObjects[gameId].serveBall = true;
+  if (gameObjects[gameId].inProgress !== true) {
+    gameObjects[gameId].inProgress = true;
+    gameObjects[gameId].serveBall = true;
+  }
 };
 const doWeHaveTwoActivePlayers = (gameId) => {
   let doesPlayerOneExist = false;
@@ -124,7 +126,6 @@ const tryAddPlayerToGame = (rawUserInfo, gameName) => {
 
   let doesPlayerOneExist = false;
   let doesPlayerTwoExist = false;
-
   for (let x = 0; x < gameObjects[gameId].players.length; x += 1) {
     // if player is already active, return
     if (gameObjects[gameId].players[x].playerNum > 0 &&
@@ -174,7 +175,7 @@ const pingServer = (rawUserInfo, gameName) => {
 };
 
 io.of('/slimeapi').on('connection', (socket) => {
-// io.on('connection', (socket) => {
+  // io.on('connection', (socket) => {
   console.log('a user connected');
 
   socket.on('joinGame', (userInfo) => {

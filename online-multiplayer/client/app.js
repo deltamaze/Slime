@@ -41,7 +41,7 @@ let serverGameObject = {
 
 // show current name/room in html
 const socket = io('https://apis.wpooley.com/slimeapi', {
-// const socket = io.connect('localhost:8081/slimeapi', {
+  // const socket = io.connect('localhost:8081/slimeapi', {
   path: '/slimeapi/socket.io',
 });
 function addLiToChatUl(msg) {
@@ -109,7 +109,7 @@ function currentPlayerStatus() {
 let pingInterval = 0;
 socket.on('connect', conn => conn);
 function pingServer() {
-  if (pingInterval % 30 === 0) {
+  if (pingInterval % 60 === 0) {
     const pingInfo = {
       gameName: myRoom,
       userGuid: myGuid,
@@ -131,15 +131,16 @@ function pingServer() {
   }
   // if game in progress, i am player, and ball on my side of court
   // todo: come back here and fix x positions and package
-  if (serverGameObject.inProgress === true &&
-    (
-      (currentPlayerStatus() === 1 &&
-        (ball.body.position.x < canvasWidth / 2 || pingInterval % 5 === 0
-        )) ||
-      (currentPlayerStatus() === 2 &&
-        (ball.body.position.x > canvasWidth / 2 || pingInterval % 5 === 0
-        ))
-    )) {
+  if (serverGameObject.inProgress === true && currentPlayerStatus() > 0) {
+  // (
+  //   (currentPlayerStatus() === 1 &&
+  //     (ball.body.position.x < canvasWidth / 2 || pingInterval % 5 === 0
+  //     )) ||
+  //   (currentPlayerStatus() === 2 &&
+  //     (ball.body.position.x > canvasWidth / 2 || pingInterval % 5 === 0
+  //     ))
+  // )) {
+
     const positionInfo = {
       gameName: myRoom,
       reportedBy: myGuid,
@@ -174,7 +175,7 @@ function pingServer() {
   pingInterval += 1;
 }
 
-setInterval(pingServer, 100);
+setInterval(pingServer, 50);
 
 function updateScore(playerThatScores) {
   // emit if currently a player
@@ -428,14 +429,17 @@ function setRoomListeners() {
           positionObj.ball.pos.x < canvasWidth / 2 &&
           positionObj.player.playerNum === 1
         )
-      )) {
-      // if dist is greater than 5 update
+        ||
+        currentPlayerStatus() === 0 // always update if you are just a spectator
+      )
+    ) {
+      // if dist is greater than 2 update
       if (int(dist(
         positionObj.ball.pos.x,
         positionObj.ball.pos.y,
         ball.body.position.x,
         ball.body.position.y,
-      )) > 5 && ballUpdateTime < positionObj.ts) {
+      )) > 2 && ballUpdateTime < positionObj.ts) {
         Matter.Body.setPosition(
           ball.body,
           { x: positionObj.ball.pos.x, y: positionObj.ball.pos.y },
