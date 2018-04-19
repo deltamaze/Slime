@@ -132,14 +132,14 @@ function pingServer() {
   // if game in progress, i am player, and ball on my side of court
   // todo: come back here and fix x positions and package
   if (serverGameObject.inProgress === true && currentPlayerStatus() > 0) {
-  // (
-  //   (currentPlayerStatus() === 1 &&
-  //     (ball.body.position.x < canvasWidth / 2 || pingInterval % 5 === 0
-  //     )) ||
-  //   (currentPlayerStatus() === 2 &&
-  //     (ball.body.position.x > canvasWidth / 2 || pingInterval % 5 === 0
-  //     ))
-  // )) {
+    // (
+    //   (currentPlayerStatus() === 1 &&
+    //     (ball.body.position.x < canvasWidth / 2 || pingInterval % 5 === 0
+    //     )) ||
+    //   (currentPlayerStatus() === 2 &&
+    //     (ball.body.position.x > canvasWidth / 2 || pingInterval % 5 === 0
+    //     ))
+    // )) {
 
     const positionInfo = {
       gameName: myRoom,
@@ -421,25 +421,26 @@ function setRoomListeners() {
     // update ball position if not in your side, and wasn't reported by you
     if (serverGameObject.inProgress === true &&
       (
-        (currentPlayerStatus() === 1 &&
+        ((currentPlayerStatus() === 1 || currentPlayerStatus() === 0) &&
           positionObj.ball.pos.x > canvasWidth / 2 &&
           positionObj.player.playerNum === 2
         ) ||
-        (currentPlayerStatus() === 2 &&
+        ((currentPlayerStatus() === 2 || currentPlayerStatus() === 0) &&
           positionObj.ball.pos.x < canvasWidth / 2 &&
           positionObj.player.playerNum === 1
         )
-        ||
-        currentPlayerStatus() === 0 // always update if you are just a spectator
       )
     ) {
-      // if dist is greater than 2 update
-      if (int(dist(
-        positionObj.ball.pos.x,
-        positionObj.ball.pos.y,
-        ball.body.position.x,
-        ball.body.position.y,
-      )) > 2 && ballUpdateTime < positionObj.ts) {
+      // if dist is greater than 2 update for players, dist greather than 4 for spectators
+      if (
+        (int(dist(
+          positionObj.ball.pos.x,
+          positionObj.ball.pos.y,
+          ball.body.position.x,
+          ball.body.position.y,
+        )) > 2)
+        &&
+        ballUpdateTime < positionObj.ts) {
         Matter.Body.setPosition(
           ball.body,
           { x: positionObj.ball.pos.x, y: positionObj.ball.pos.y },
