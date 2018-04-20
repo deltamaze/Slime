@@ -175,7 +175,7 @@ function pingServer() {
   pingInterval += 1;
 }
 
-setInterval(pingServer, 50);
+setInterval(pingServer, 10);
 
 function updateScore(playerThatScores) {
   // emit if currently a player
